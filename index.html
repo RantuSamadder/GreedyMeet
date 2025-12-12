@@ -6,36 +6,40 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ======= GLOBAL FUTURISTIC CYBER THEME ======= */
+/* ======= GLOBAL FUTURISTIC HACKER THEME ======= */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Courier New', monospace;
     background: #03040a;
     color: #00ffe0;
+    overflow-x: hidden;
 }
 
-/* Floating neon bits */
+/* --- Floating binary particles --- */
 @keyframes floatBits {
-  from { transform: translateY(0); opacity: 0.8; }
-  to { transform: translateY(-100vh); opacity: 0; }
+  0% { transform: translateY(0); opacity: 0.6; }
+  100% { transform: translateY(-120vh); opacity: 0.8; }
 }
 .binary {
   position: fixed;
-  bottom: -20px;
-  font-size: 13px;
-  color: rgba(0,255,200,0.18);
+  bottom: -10vh;
+  font-size: 12px;
+  color: rgba(0,255,200,0.25); /* slightly stronger visibility */
   animation: floatBits linear infinite;
   pointer-events: none;
+  z-index: -1;
+  text-shadow: 0 0 6px #00ffcc, 0 0 10px #00ffcc; /* neon glow effect */
 }
 
 /* Cyber Glass Cards */
 form, .dashboard-section {
     background: rgba(0, 255, 200, 0.07);
     border: 1px solid #00ffc8;
-    padding: 22px;
+    padding: 20px;
     border-radius: 16px;
     margin: 20px auto;
+    width: 95%;
     max-width: 900px;
     box-shadow: 0 0 18px #00ffc825;
     backdrop-filter: blur(6px);
@@ -44,7 +48,7 @@ form, .dashboard-section {
 /* Inputs */
 input, select {
     padding: 10px;
-    margin: 8px;
+    margin: 8px 0;
     border-radius: 6px;
     border: 1px solid #00ffc8;
     background: #081616;
@@ -52,6 +56,7 @@ input, select {
     width: 260px;
 }
 
+/* Buttons */
 button {
     background: #001a1a;
     color: #00ffe0;
@@ -75,10 +80,8 @@ button:hover { background: #003737; }
 }
 @keyframes spin {100% {transform: rotate(360deg);}}
 
-/* ---- DROPDOWN CHECKBOX MENU ---- */
-.dropdown-box {
-    margin: 10px 0;
-}
+/* Dropdown checkbox */
+.dropdown-box { margin: 10px 0; }
 .dropdown-btn {
     width: 260px;
     padding: 10px;
@@ -95,14 +98,52 @@ button:hover { background: #003737; }
     border-radius:6px;
     padding:10px;
     margin-top:5px;
-    max-height:250px;
+    max-height:220px;
     overflow-y:auto;
 }
-.dropdown-content label { display:block; padding:4px 0; }
+.dropdown-content label {
+    display:block;
+    padding:3px 0;
+    font-size: 14px;
+}
+
+/* OFF DAY CHECKBOX */
+.offday-row {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:10px 0;
+}
+
+/* DASHBOARD GRID */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+.dashboard-grid > div {
+    background: rgba(0,255,200,0.05);
+    border: 1px solid #00ffc8;
+    padding: 12px;
+    border-radius:10px;
+}
+
+/* Chart sizing */
+#bestDayPie {
+    max-width: 320px;
+    margin: 0 auto;
+    display:block;
+}
+#freeTimeChart {
+    max-width: 100%;
+    margin: 10px auto;
+}
 
 /* Responsive */
-@media(max-width:600px){
-  input, select, .dropdown-btn { width:100%; }
+@media(max-width:700px){
+    .dashboard-grid { grid-template-columns: 1fr; }
+    input, select, .dropdown-btn { width:100%; }
+    #bestDayPie { max-width: 95%; }
 }
 </style>
 </head>
@@ -110,89 +151,98 @@ button:hover { background: #003737; }
 
 <!-- FLOATING BINARY PARTICLES -->
 <script>
-for(let i=0;i<40;i++){
-  let d=document.createElement("div");
-  d.className="binary";
-  d.style.left=Math.random()*100+"vw";
-  d.style.animationDuration=(6+Math.random()*10)+"s";
-  d.textContent=Math.random()>0.5?"0":"1";
-  document.body.appendChild(d);
+for(let i=0;i<150;i++){ // more particles for hacker effect
+  const particle = document.createElement("div");
+  particle.className = "binary";
+  particle.style.left = Math.random()*100 + "vw";
+  particle.style.fontSize = 10 + Math.random()*8 + "px";
+  particle.style.animationDuration = (6 + Math.random()*14) + "s"; // varying speed
+  particle.style.animationDelay = (Math.random()*10) + "s";
+  particle.textContent = Math.random() > 0.5 ? "0" : "1";
+  document.body.appendChild(particle);
 }
 </script>
 
-<h2 style="text-align:center;margin-top:30px;">Submit you class schedule</h2>
+<h2 style="text-align:center;margin-top:30px;">Submit Your Class Schedule</h2>
 
 <form id="scheduleForm">
   <input type="text" id="studentID" placeholder="Student ID" required>
   <input type="text" id="group" placeholder="Group Name" required>
 
   <select id="day">
-    <option>Saturday</option>
-    <option>Sunday</option>
-    <option>Monday</option>
-    <option>Tuesday</option>
-    <option>Wednesday</option>
-    <option>Thursday</option>
+    <option>Saturday</option><option>Sunday</option>
+    <option>Monday</option><option>Tuesday</option>
+    <option>Wednesday</option><option>Thursday</option>
     <option>Friday</option>
   </select>
 
   <h3>Select Your Time Slots</h3>
 
-  <label><input type="checkbox" id="offDay"> This is my OFF Day</label><br><br>
+  <div class="offday-row">
+    <input type="checkbox" id="offDay">
+    <label for="offDay">This is my OFF Day</label>
+  </div>
 
-  <!-- NEW DROPDOWN CHECKBOX -->
-  <div class="dropdown-box">
-    <button type="button" class="dropdown-btn" onclick="toggleSlots()">Select Time Slots ▼</button>
-    <div class="dropdown-content" id="slotDropdown">
-      <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
-      <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
-      <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
-      <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
-      <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
-      <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
-      <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
-      <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
-      <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
-      <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
-      <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
-      <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
-      <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
-      <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
-      <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+  <div id="slotBox">
+    <div class="dropdown-box">
+      <button type="button" class="dropdown-btn" onclick="toggleSlots()">Select Time Slots ▼</button>
+      <div class="dropdown-content" id="slotDropdown">
+        <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
+        <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
+        <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
+        <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
+        <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
+        <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
+        <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
+        <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
+        <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
+        <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
+        <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
+        <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
+        <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
+        <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
+        <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+      </div>
     </div>
   </div>
 
   <button type="submit">Submit</button>
 </form>
 
+<!-- DASHBOARD -->
 <div class="dashboard-section">
-<h2>Group Free Time Dashboard</h2>
+<h2 style="text-align:center;">Group Free Time Dashboard</h2>
 
-<input type="text" id="dashboardGroup" placeholder="Group Name" value="DefaultGroup">
-<select id="daySelect">
-  <option>Saturday</option>
-  <option>Sunday</option>
-  <option>Monday</option>
-  <option>Tuesday</option>
-  <option>Wednesday</option>
-  <option>Thursday</option>
-  <option>Friday</option>
-</select>
+<div class="dashboard-grid">
 
-<p>Total Students in Group: <span id="totalStudents">0</span></p>
+  <!-- Controls -->
+  <div>
+    <h3>Dashboard Controls</h3>
+    <input type="text" id="dashboardGroup" placeholder="Group Name">
+    <select id="daySelect">
+      <option>Saturday</option><option>Sunday</option>
+      <option>Monday</option><option>Tuesday</option>
+      <option>Wednesday</option><option>Thursday</option>
+      <option>Friday</option>
+    </select>
+    <p>Total inputed Students in Group : <span id="totalStudents">0</span></p>
 
-<button id="refreshBtn">Refresh Chart</button>
-<span class="loader" id="refreshLoader"></span>
+    <button id="bestDayBtn">Find Next Best Meeting Day</button>
+    <span class="loader" id="bestDayLoader"></span>
+    <p id="bestDayResult"></p>
+  </div>
 
-<br><br>
+  <!-- Bar chart -->
+  <div>
+    <h3>Daily Slot Free % (Bar Chart)</h3>
+    <canvas id="freeTimeChart"></canvas>
+  </div>
 
-<button id="bestDayBtn">Find Best Meeting Day</button>
-<span class="loader" id="bestDayLoader"></span>
+</div>
 
-<p id="bestDayResult"></p>
+<hr style="border-color:#00ffc855;margin:25px 0;">
 
-<canvas id="freeTimeChart"></canvas>
-<br>
+<h3 style="text-align:center;">Best Day Pie Chart</h3>
 <canvas id="bestDayPie"></canvas>
 
 </div>
@@ -200,110 +250,59 @@ for(let i=0;i<40;i++){
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS3seRQOGe5SEHUSiwkaP1kn66SZ836AKaVySZaR5vwinu2PwdHqNfEwTt07gPqtM9/exec";
 
-/* ---- DROPDOWN FUNCTION ---- */
+/* Dropdown toggle */
 function toggleSlots(){
   const box = document.getElementById("slotDropdown");
-  box.style.display = box.style.display === "block" ? "none" : "block";
+  box.style.display = (box.style.display==="block") ? "none" : "block";
 }
 
-/* ---- OFF DAY DISABLE ---- */
-document.getElementById("offDay").addEventListener("change", function(){
-  const dis = this.checked;
-  document.querySelectorAll("#slotDropdown input").forEach(cb=>cb.disabled=dis);
+/* OFF DAY HIDES SLOTS */
+offDay.addEventListener("change",()=>{
+  slotBox.style.display = offDay.checked ? "none" : "block";
 });
 
-/* ---- SUBMIT FORM ---- */
-document.getElementById("scheduleForm").addEventListener("submit", e=>{
+/* SUBMIT FORM */
+scheduleForm.addEventListener("submit", e=>{
   e.preventDefault();
-
-  const studentID = studentID.value;
-  const group = group.value;
-  const day = day.value;
-  const offDay = offDay.checked;
-
-  let timeSlots = [];
-
-  if(offDay){
-    timeSlots = ["OFF"];
-  } else {
-    timeSlots = Array.from(document.querySelectorAll("#slotDropdown input:checked"))
-      .map(cb=>cb.value);
-    if(!timeSlots.length) return alert("Select at least one time slot.");
-  }
-
-  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({studentID,group,day,timeSlots})})
-    .then(r=>r.json())
-    .then(()=>alert("Schedule Submitted!"));
+  const sid=studentID.value, g=group.value, d=day.value;
+  let slots = offDay.checked ? ["OFF"] : [...document.querySelectorAll("#slotDropdown input:checked")].map(cb=>cb.value);
+  if(!slots.length && !offDay.checked) return alert("Select at least one slot!");
+  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({studentID:sid, group:g, day:d, timeSlots:slots})})
+    .then(r=>r.json()).then(()=>alert("Schedule Submitted!"));
 });
 
 let chart, pie;
 
-/* ---- LOAD BAR CHART ---- */
+/* LOAD BAR CHART */
 function loadChart(){
-  document.getElementById("refreshLoader").style.display="inline-block";
-
-  const group = dashboardGroup.value;
-  const day = daySelect.value;
-
-  fetch(`${SCRIPT_URL}?group=${group}`)
-    .then(r=>r.json())
-    .then(data=>{
-      document.getElementById("refreshLoader").style.display="none";
-      totalStudents.textContent = data.totalStudents;
-
-      const slots = Object.keys(data.freeTime[day]);
-      const values = Object.values(data.freeTime[day]);
-
-      if(chart) chart.destroy();
-
-      chart=new Chart(freeTimeChart,{
-        type:"bar",
-        data:{
-          labels:slots,
-          datasets:[{label:"Free %",data:values}]
-        },
-        options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}
-      });
+  const group=dashboardGroup.value, day=daySelect.value;
+  fetch(`${SCRIPT_URL}?group=${group}`).then(r=>r.json()).then(data=>{
+    totalStudents.textContent=data.totalStudents;
+    const slots=Object.keys(data.freeTime[day]), values=Object.values(data.freeTime[day]);
+    if(chart) chart.destroy();
+    chart=new Chart(freeTimeChart,{type:"bar",data:{labels:slots,datasets:[{label:"Free %",data:values}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
   });
 }
 
-/* ---- BEST DAY PIE CHART ---- */
-document.getElementById("bestDayBtn").addEventListener("click",()=>{
-  document.getElementById("bestDayLoader").style.display="inline-block";
-
-  const group = dashboardGroup.value;
-
-  fetch(`${SCRIPT_URL}?group=${group}`).then(r=>r.json()).then(data=>{
-    document.getElementById("bestDayLoader").style.display="none";
-
-    let labels=[], values=[];
+/* PIE CHART */
+bestDayBtn.addEventListener("click",()=>{
+  bestDayLoader.style.display="inline-block";
+  fetch(`${SCRIPT_URL}?group=${dashboardGroup.value}`).then(r=>r.json()).then(data=>{
+    bestDayLoader.style.display="none";
+    const labels=[], values=[];
     for(const d in data.freeTime){
-      const arr = Object.values(data.freeTime[d]);
-      labels.push(d);
-      values.push(arr.reduce((a,b)=>a+b,0)/arr.length);
+      const arr=Object.values(data.freeTime[d]);
+      labels.push(d); values.push(arr.reduce((a,b)=>a+b,0)/arr.length);
     }
-
     if(pie) pie.destroy();
-    pie=new Chart(bestDayPie,{
-      type:"pie",
-      data:{
-        labels:labels,
-        datasets:[{data:values}]
-      }
-    });
-
-    // Show best day text
-    let maxVal=Math.max(...values);
-    let bestDay=labels[values.indexOf(maxVal)];
-    bestDayResult.textContent=`Best Day: ${bestDay} (${maxVal.toFixed(1)}% free)`;
+    pie=new Chart(bestDayPie,{type:"pie",data:{labels,datasets:[{data:values}]},options:{responsive:true}});
+    let max=Math.max(...values), best=labels[values.indexOf(max)];
+    bestDayResult.textContent=`Best Day: ${best} (${max.toFixed(1)}% free)`;
   });
 });
 
-
-daySelect.onchange = loadChart;
-dashboardGroup.oninput = loadChart;
-refreshBtn.onclick = loadChart;
-
+daySelect.onchange=loadChart;
+dashboardGroup.oninput=loadChart;
 loadChart();
 </script>
 
