@@ -60,19 +60,44 @@ button:hover {
     background: #00cc66;
 }
 
-/* ---------------- Checkbox Grid ---------------- */
+/* ---------------- Dropdown Checkboxes ---------------- */
+.dropdown-container {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.dropdown-header {
+    background: #0d0d0d;
+    border: 1px solid #00ff99;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #00ff99;
+    font-weight: bold;
+    text-align: center;
+}
+
+.dropdown-content {
+    display: none;
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border: 1px solid #00ff99;
+    border-radius: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
 .checkbox-group {
-    display:grid;
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 10px;
-    max-width: 700px;
 }
 
 .checkbox-group label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 0.9em;
 }
 
 /* ---------------- Dashboard ---------------- */
@@ -90,14 +115,32 @@ button:hover {
     margin-top: 20px;
 }
 
+/* Refresh Button + Spinner */
+#refreshArea {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 #refreshChart {
-    margin-top: 10px;
     background: #ff6600;
     color: #0d0d0d;
 }
-
 #refreshChart:hover {
     background: #ff9933;
+}
+
+#loadingSpinner {
+    border: 4px solid #0d0d0d;
+    border-top: 4px solid #00ff99;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    animation: spin 0.8s linear infinite;
+    display: none;
+}
+@keyframes spin {
+    100% { transform: rotate(360deg); }
 }
 
 /* ---------------- Headings ---------------- */
@@ -105,7 +148,6 @@ h2, h3 {
     text-align: center;
     color: #00ff99;
     text-shadow: 0 0 5px #00ff99, 0 0 10px #00ff99;
-    margin-top: 20px;
 }
 
 /* ---------------- Responsive ---------------- */
@@ -138,23 +180,31 @@ h2, h3 {
   </select>
 
   <h3>Select Your Time Slots</h3>
-  <div class="checkbox-group">
-    <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
-    <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
-    <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
-    <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
-    <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
-    <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
-    <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
-    <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
-    <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
-    <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
-    <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
-    <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
-    <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
-    <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
-    <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+
+  <!-- Dropdown Checkbox System -->
+  <div class="dropdown-container">
+    <div class="dropdown-header" onclick="toggleDropdown()">Select Time Slots ▼</div>
+    <div class="dropdown-content" id="dropdownContent">
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
+        <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
+        <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
+        <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
+        <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
+        <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
+        <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
+        <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
+        <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
+        <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
+        <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
+        <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
+        <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
+        <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
+        <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+      </div>
+    </div>
   </div>
+
   <button type="submit">Submit</button>
 </form>
 
@@ -170,13 +220,24 @@ h2, h3 {
     <option>Thursday</option>
     <option>Friday</option>
   </select>
-  <button id="refreshChart">Refresh Chart</button>
+
+  <div id="refreshArea">
+    <button id="refreshChart">Refresh Chart</button>
+    <div id="loadingSpinner"></div>
+  </div>
+
   <p>Total Students in Group: <span id="totalStudents">0</span></p>
   <canvas id="freeTimeChart" width="400" height="400"></canvas>
 </div>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwnZYdNQLSnSNBfAs4FdWSf0IVnRG18k66u9XcJtDv3pUnPCuKzS26V3fXb9xTZrDlN/exec";
+
+/* -------- Dropdown Toggle -------- */
+function toggleDropdown() {
+    const content = document.getElementById("dropdownContent");
+    content.style.display = content.style.display === "block" ? "none" : "block";
+}
 
 /* -------- Submit Form -------- */
 document.getElementById("scheduleForm").addEventListener("submit", function(e){
@@ -195,32 +256,40 @@ document.getElementById("scheduleForm").addEventListener("submit", function(e){
 
 /* -------- Chart -------- */
 let chart;
+
 function loadChart(){
+  const spinner = document.getElementById("loadingSpinner");
+  spinner.style.display = "inline-block";
+
   const group = document.getElementById("dashboardGroup").value;
   const day = document.getElementById("daySelect").value;
-  fetch(`${SCRIPT_URL}?group=${group}`).then(res=>res.json()).then(data=>{
-    document.getElementById("totalStudents").textContent = data.totalStudents;
-    const slots = Object.keys(data.freeTime[day]);
-    const percentages = Object.values(data.freeTime[day]);
 
-    if(chart) chart.destroy();
-    chart = new Chart(document.getElementById('freeTimeChart').getContext('2d'),{
-      type:'bar',
-      data:{
-        labels:slots,
-        datasets:[{
-          label:'Free %',
-          data:percentages,
-          backgroundColor:percentages.map(p=>`rgba(0,255,153,0.6)`)
-        }]
-      },
-      options:{
-        responsive:true,
-        plugins:{ legend:{ display:false } },
-        scales:{ y:{ beginAtZero:true, max:100 } }
-      }
+  fetch(`${SCRIPT_URL}?group=${group}`)
+    .then(res=>res.json())
+    .then(data=>{
+        spinner.style.display = "none";
+        document.getElementById("totalStudents").textContent = data.totalStudents;
+        const slots = Object.keys(data.freeTime[day]);
+        const percentages = Object.values(data.freeTime[day]);
+
+        if(chart) chart.destroy();
+        chart = new Chart(document.getElementById('freeTimeChart').getContext('2d'),{
+          type:'bar',
+          data:{
+            labels:slots,
+            datasets:[{
+              label:'Free %',
+              data:percentages,
+              backgroundColor:percentages.map(p=>`rgba(0,255,153,0.6)`)
+            }]
+          },
+          options:{
+            responsive:true,
+            plugins:{ legend:{ display:false } },
+            scales:{ y:{ beginAtZero:true, max:100 } }
+          }
+        });
     });
-  });
 }
 
 document.getElementById("daySelect").addEventListener("change", loadChart);
@@ -269,8 +338,10 @@ function animateParticles(){
 animateParticles();
 
 /* -------- Responsive Canvas -------- */
-window.addEventListener('resize', ()=>{ canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-
+window.addEventListener('resize', ()=>{
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 </script>
 </body>
 </html>
