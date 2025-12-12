@@ -6,8 +6,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body { font-family: Arial; margin: 20px; }
-form { margin-bottom: 30px; }
-input, select { padding: 5px; margin: 5px; }
+form { margin-bottom: 30px; background:#f0f0f0; padding:15px; border-radius:10px; }
+input, select, button { padding: 5px; margin: 5px; }
+.checkbox-group { display:grid; grid-template-columns: repeat(3, 1fr); max-width:600px; }
+h2,h3 { margin-top:30px; }
+#freeTimeChart { max-width: 700px; margin-top:20px; }
 </style>
 </head>
 <body>
@@ -15,6 +18,7 @@ input, select { padding: 5px; margin: 5px; }
 <h2>Submit Your Schedule</h2>
 <form id="scheduleForm">
   <input type="text" id="studentID" placeholder="Student ID" required>
+  <input type="text" id="group" placeholder="Group Name" required>
   <select id="day">
     <option>Saturday</option>
     <option>Sunday</option>
@@ -24,27 +28,30 @@ input, select { padding: 5px; margin: 5px; }
     <option>Thursday</option>
     <option>Friday</option>
   </select>
-  <select id="timeSlot">
-    <option>08:30–09:50</option>
-    <option>08:00–10:00</option>
-    <option>08:30–10:00</option>
-    <option>09:00–10:00</option>
-    <option>10:00–11:20</option>
-    <option>10:00–12:00</option>
-    <option>11:30–12:50</option>
-    <option>11:30–13:30</option>
-    <option>13:30–14:50</option>
-    <option>13:30–15:30</option>
-    <option>15:00–16:20</option>
-    <option>15:00–17:00</option>
-    <option>16:30–18:30</option>
-    <option>16:30–17:50</option>
-    <option>17:00–19:00</option>
-  </select>
+
+  <h3>Select Your Time Slots</h3>
+  <div class="checkbox-group">
+    <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
+    <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
+    <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
+    <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
+    <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
+    <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
+    <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
+    <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
+    <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
+    <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
+    <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
+    <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
+    <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
+    <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
+    <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+  </div>
   <button type="submit">Submit</button>
 </form>
 
 <h2>Group Free Time Dashboard</h2>
+<input type="text" id="dashboardGroup" placeholder="Group Name" value="DefaultGroup">
 <select id="daySelect">
   <option>Saturday</option>
   <option>Sunday</option>
@@ -55,64 +62,60 @@ input, select { padding: 5px; margin: 5px; }
   <option>Friday</option>
 </select>
 
-<canvas id="freeTimeChart" width="800" height="400"></canvas>
+<p>Total Students in Group: <span id="totalStudents">0</span></p>
+<canvas id="freeTimeChart" width="400" height="400"></canvas>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPffdSfOG0wjVM8HBg-ze1ooT3Qk0FcFDDP8HJlOv43I9HKOa38ZpPP7hF8DdpUJpg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2SGcs68alof5x6mwGGMkw4Ro7thG2WgYjJ-emn2NbcP5TmbGtjXYTKZ8TvDqghFhP/exec";
 
 document.getElementById("scheduleForm").addEventListener("submit", function(e){
   e.preventDefault();
-  const data = {
-    studentID: document.getElementById("studentID").value,
-    day: document.getElementById("day").value,
-    timeSlot: document.getElementById("timeSlot").value
-  };
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  }).then(res => res.json())
-    .then(res => alert("Schedule submitted!"));
+  const studentID = document.getElementById("studentID").value;
+  const group = document.getElementById("group").value;
+  const day = document.getElementById("day").value;
+  const timeSlots = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
+  if(timeSlots.length === 0) { alert("Select at least one time slot"); return; }
+
+  const data = { studentID, group, day, timeSlots };
+  fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify(data) })
+    .then(res => res.json())
+    .then(res => alert("Schedule Submitted!"));
 });
 
-const ctx = document.getElementById('freeTimeChart').getContext('2d');
 let chart;
+function loadChart(){
+  const group = document.getElementById("dashboardGroup").value;
+  const day = document.getElementById("daySelect").value;
+  fetch(`${SCRIPT_URL}?group=${group}`).then(res=>res.json()).then(data=>{
+    document.getElementById("totalStudents").textContent = data.totalStudents;
+    const slots = Object.keys(data.freeTime[day]);
+    const percentages = Object.values(data.freeTime[day]);
 
-function loadChart(day){
-  fetch(SCRIPT_URL)
-    .then(res => res.json())
-    .then(data => {
-      const slots = Object.keys(data[day]);
-      const percentages = Object.values(data[day]);
-
-      if(chart) chart.destroy();
-
-      chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: slots,
-          datasets: [{
-            label: 'Free %',
-            data: percentages,
-            backgroundColor: percentages.map(p => `rgba(75, 192, 192, ${p/100 + 0.2})`),
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true, max: 100, title: { display: true, text: '% Students Free' } },
-            x: { title: { display: true, text: 'Time Slot' } }
-          }
-        }
-      });
+    if(chart) chart.destroy();
+    chart = new Chart(document.getElementById('freeTimeChart').getContext('2d'),{
+      type:'bar',
+      data:{
+        labels:slots,
+        datasets:[{
+          label:'Free %',
+          data:percentages,
+          backgroundColor:percentages.map(p=>`rgba(75, 192, 192, 0.6)`)
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ display:false } },
+        scales:{ y:{ beginAtZero:true, max:100 } }
+      }
     });
+  });
 }
 
-document.getElementById("daySelect").addEventListener("change", function(){
-  loadChart(this.value);
-});
+document.getElementById("daySelect").addEventListener("change", loadChart);
+document.getElementById("dashboardGroup").addEventListener("input", loadChart);
 
-// Initial chart
-loadChart(document.getElementById("daySelect").value);
+// Initial load
+loadChart();
 </script>
 
 </body>
