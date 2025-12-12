@@ -1,66 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Student Free Time Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    canvas { max-width: 800px; }
-  </style>
+<meta charset="UTF-8">
+<title>Student Free Time Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: Arial; margin: 20px; }
+form { margin-bottom: 30px; }
+input, select { padding: 5px; margin: 5px; }
+</style>
 </head>
 <body>
+
+<h2>Submit Your Schedule</h2>
+<form id="scheduleForm">
+  <input type="text" id="studentID" placeholder="Student ID" required>
+  <select id="day">
+    <option>Saturday</option>
+    <option>Sunday</option>
+    <option>Monday</option>
+    <option>Tuesday</option>
+    <option>Wednesday</option>
+    <option>Thursday</option>
+    <option>Friday</option>
+  </select>
+  <select id="timeSlot">
+    <option>08:30–09:50</option>
+    <option>08:00–10:00</option>
+    <option>08:30–10:00</option>
+    <option>09:00–10:00</option>
+    <option>10:00–11:20</option>
+    <option>10:00–12:00</option>
+    <option>11:30–12:50</option>
+    <option>11:30–13:30</option>
+    <option>13:30–14:50</option>
+    <option>13:30–15:30</option>
+    <option>15:00–16:20</option>
+    <option>15:00–17:00</option>
+    <option>16:30–18:30</option>
+    <option>16:30–17:50</option>
+    <option>17:00–19:00</option>
+  </select>
+  <button type="submit">Submit</button>
+</form>
+
 <h2>Group Free Time Dashboard</h2>
-<select id="daySelect"></select>
-<canvas id="freeChart"></canvas>
+<select id="daySelect">
+  <option>Saturday</option>
+  <option>Sunday</option>
+  <option>Monday</option>
+  <option>Tuesday</option>
+  <option>Wednesday</option>
+  <option>Thursday</option>
+  <option>Friday</option>
+</select>
+
+<canvas id="freeTimeChart" width="400" height="400"></canvas>
 
 <script>
-const webAppURL = 'https://script.google.com/macros/s/AKfycbxloi8--GBTRosRV5yLUSLHLVnBiUAEgqoR5Sx8-inoTrGF0-SMZPNuSK9HR1OHbOpltQ/exec';
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjEcvnQk0ajezPPflc-_FmLJ2gteEvzAqTagvmQo48wchGhqRrC8GNSwkDzhllsHYocQ/exec"; // Web App URL
 
-async function fetchData() {
-  const res = await fetch(webAppURL);
-  const data = await res.json();
-  return data;
-}
+document.getElementById("scheduleForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const data = {
+    studentID: document.getElementById("studentID").value,
+    day: document.getElementById("day").value,
+    timeSlot: document.getElementById("timeSlot").value
+  };
+  
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  }).then(res => res.json()).then(res => alert("Submitted!"));
+});
 
-function populateDays(days){
-  const select = document.getElementById('daySelect');
-  days.forEach(day=>{
-    const opt = document.createElement('option');
-    opt.value = day;
-    opt.textContent = day;
-    select.appendChild(opt);
+const ctx = document.getElementById('freeTimeChart').getContext('2d');
+let chart;
+
+function loadChart(day){
+  fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+    const slots = Object.keys(data[day]);
+    const percentages = Object.values(data[day]);
+    
+    if(chart) chart.destroy();
+    
+    chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: slots,
+        datasets: [{
+          label: 'Free %',
+          data: percentages,
+          backgroundColor: slots.map(() => 'rgba(75, 192, 192, 0.5)')
+        }]
+      },
+      options: { responsive: true }
+    });
   });
 }
 
-function drawChart(slots, freePercent){
-  const ctx = document.getElementById('freeChart').getContext('2d');
-  if(window.myChart) window.myChart.destroy();
-  window.myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: slots,
-      datasets: [{
-        label: '% Students Free',
-        data: freePercent,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)'
-      }]
-    },
-    options: { scales: { y: { beginAtZero:true, max:100 } } }
-  });
-}
+document.getElementById("daySelect").addEventListener("change", function(){
+  loadChart(this.value);
+});
 
-async function init(){
-  const data = await fetchData();
-  const days = Object.keys(data.freeData);
-  populateDays(days);
-  drawChart(data.slots, data.freeData[days[0]]);
-
-  document.getElementById('daySelect').addEventListener('change', (e)=>{
-    drawChart(data.slots, data.freeData[e.target.value]);
-  });
-}
-
-init();
+// Initial chart
+loadChart(document.getElementById("daySelect").value);
 </script>
+
 </body>
 </html>
