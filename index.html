@@ -6,77 +6,64 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ---------- GLOBAL FUTURISTIC THEME ---------- */
+/* ======= GLOBAL FUTURISTIC CYBER THEME ======= */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Courier New', monospace;
-    background: #0a0a0f;
-    color: #00ffea;
-    overflow-x: hidden;
+    background: #03040a;
+    color: #00ffe0;
 }
 
-/* Floating binary particles */
+/* Floating neon bits */
 @keyframes floatBits {
-  from { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(0); opacity: 0.8; }
   to { transform: translateY(-100vh); opacity: 0; }
 }
-
 .binary {
   position: fixed;
-  bottom: -10px;
-  font-size: 14px;
-  color: rgba(0,255,200,0.25);
+  bottom: -20px;
+  font-size: 13px;
+  color: rgba(0,255,200,0.18);
   animation: floatBits linear infinite;
   pointer-events: none;
 }
 
-/* Card-like forms */
+/* Cyber Glass Cards */
 form, .dashboard-section {
-    background: rgba(0, 255, 200, 0.06);
+    background: rgba(0, 255, 200, 0.07);
     border: 1px solid #00ffc8;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px;
-    box-shadow: 0 0 12px #00ffc855;
+    padding: 22px;
+    border-radius: 16px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 0 18px #00ffc825;
+    backdrop-filter: blur(6px);
 }
 
-/* Labels, Inputs, Selects */
+/* Inputs */
 input, select {
     padding: 10px;
     margin: 8px;
     border-radius: 6px;
     border: 1px solid #00ffc8;
-    background: #0f1a1a;
-    color: #00ffea;
-    width: 200px;
+    background: #081616;
+    color: #00ffe0;
+    width: 260px;
 }
 
-/* Slot grid */
-.checkbox-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
-  gap: 10px;
-}
-
-/* Buttons */
 button {
-    background: #001f1f;
-    color: #00ffea;
+    background: #001a1a;
+    color: #00ffe0;
     border: 1px solid #00ffc8;
     padding: 10px 16px;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.2s;
     font-weight: bold;
 }
+button:hover { background: #003737; }
 
-button:hover {
-    background: #003c3c;
-    transform: scale(1.03);
-}
-
-/* Spinner beside buttons */
+/* Loader */
 .loader {
     border: 3px solid #003c3c;
     border-top: 3px solid #00ffea;
@@ -85,23 +72,37 @@ button:hover {
     height: 14px;
     animation: spin 1s linear infinite;
     display: none;
-    margin-left: 8px;
 }
+@keyframes spin {100% {transform: rotate(360deg);}}
 
-@keyframes spin {
-  100% { transform: rotate(360deg); }
+/* ---- DROPDOWN CHECKBOX MENU ---- */
+.dropdown-box {
+    margin: 10px 0;
 }
-
-#freeTimeChart {
-    max-width: 90%;
-    margin: 20px auto;
+.dropdown-btn {
+    width: 260px;
+    padding: 10px;
+    background:#001a1a;
+    color:#00ffe0;
+    border:1px solid #00ffc8;
+    border-radius:6px;
+    cursor:pointer;
 }
+.dropdown-content {
+    display:none;
+    background:#081818;
+    border:1px solid #00ffc8;
+    border-radius:6px;
+    padding:10px;
+    margin-top:5px;
+    max-height:250px;
+    overflow-y:auto;
+}
+.dropdown-content label { display:block; padding:4px 0; }
 
-footer {
-  text-align:center;
-  padding:15px;
-  margin-top:40px;
-  color:#00ffea88;
+/* Responsive */
+@media(max-width:600px){
+  input, select, .dropdown-btn { width:100%; }
 }
 </style>
 </head>
@@ -109,17 +110,17 @@ footer {
 
 <!-- FLOATING BINARY PARTICLES -->
 <script>
-for(let i=0;i<50;i++){
-  let div=document.createElement("div");
-  div.className="binary";
-  div.style.left = Math.random()*100 + "vw";
-  div.style.animationDuration = (5 + Math.random()*10) + "s";
-  div.textContent = Math.random() > 0.5 ? "0" : "1";
-  document.body.appendChild(div);
+for(let i=0;i<40;i++){
+  let d=document.createElement("div");
+  d.className="binary";
+  d.style.left=Math.random()*100+"vw";
+  d.style.animationDuration=(6+Math.random()*10)+"s";
+  d.textContent=Math.random()>0.5?"0":"1";
+  document.body.appendChild(d);
 }
 </script>
 
-<h2 style="text-align:center; margin-top:30px;">GreedyMeet Schedule Form</h2>
+<h2 style="text-align:center;margin-top:30px;">Submit you class schedule</h2>
 
 <form id="scheduleForm">
   <input type="text" id="studentID" placeholder="Student ID" required>
@@ -137,26 +138,28 @@ for(let i=0;i<50;i++){
 
   <h3>Select Your Time Slots</h3>
 
-  <label style="font-weight:bold;">
-    <input type="checkbox" id="offDay"> This is my OFF Day (No class)
-  </label>
+  <label><input type="checkbox" id="offDay"> This is my OFF Day</label><br><br>
 
-  <div class="checkbox-group" id="slotContainer">
-    <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
-    <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
-    <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
-    <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
-    <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
-    <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
-    <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
-    <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
-    <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
-    <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
-    <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
-    <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
-    <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
-    <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
-    <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+  <!-- NEW DROPDOWN CHECKBOX -->
+  <div class="dropdown-box">
+    <button type="button" class="dropdown-btn" onclick="toggleSlots()">Select Time Slots ▼</button>
+    <div class="dropdown-content" id="slotDropdown">
+      <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
+      <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
+      <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
+      <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
+      <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
+      <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
+      <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
+      <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
+      <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
+      <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
+      <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
+      <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
+      <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
+      <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
+      <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+    </div>
   </div>
 
   <button type="submit">Submit</button>
@@ -178,9 +181,7 @@ for(let i=0;i<50;i++){
 
 <p>Total Students in Group: <span id="totalStudents">0</span></p>
 
-<button id="refreshBtn">
-  Refresh Chart
-</button>
+<button id="refreshBtn">Refresh Chart</button>
 <span class="loader" id="refreshLoader"></span>
 
 <br><br>
@@ -188,116 +189,121 @@ for(let i=0;i<50;i++){
 <button id="bestDayBtn">Find Best Meeting Day</button>
 <span class="loader" id="bestDayLoader"></span>
 
-<p id="bestDayResult" style="font-weight:bold; margin-top:15px;"></p>
+<p id="bestDayResult"></p>
 
 <canvas id="freeTimeChart"></canvas>
-</div>
+<br>
+<canvas id="bestDayPie"></canvas>
 
-<footer>
-  © All Rights Reserved for CSE, SEU
-</footer>
+</div>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS3seRQOGe5SEHUSiwkaP1kn66SZ836AKaVySZaR5vwinu2PwdHqNfEwTt07gPqtM9/exec";
 
-// OFF Day disable slots
+/* ---- DROPDOWN FUNCTION ---- */
+function toggleSlots(){
+  const box = document.getElementById("slotDropdown");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+/* ---- OFF DAY DISABLE ---- */
 document.getElementById("offDay").addEventListener("change", function(){
-  const disabled = this.checked;
-  document.querySelectorAll("#slotContainer input").forEach(cb => cb.disabled = disabled);
+  const dis = this.checked;
+  document.querySelectorAll("#slotDropdown input").forEach(cb=>cb.disabled=dis);
 });
 
-// Submit form
-document.getElementById("scheduleForm").addEventListener("submit", function(e){
+/* ---- SUBMIT FORM ---- */
+document.getElementById("scheduleForm").addEventListener("submit", e=>{
   e.preventDefault();
+
   const studentID = studentID.value;
-  const group = document.getElementById("group").value;
-  const day = document.getElementById("day").value;
-  const offDay = document.getElementById("offDay").checked;
+  const group = group.value;
+  const day = day.value;
+  const offDay = offDay.checked;
 
   let timeSlots = [];
 
   if(offDay){
     timeSlots = ["OFF"];
   } else {
-    timeSlots = Array.from(document.querySelectorAll(".checkbox-group input:checked"))
-      .map(cb => cb.value);
-    if(timeSlots.length === 0) return alert("Select at least one time slot");
+    timeSlots = Array.from(document.querySelectorAll("#slotDropdown input:checked"))
+      .map(cb=>cb.value);
+    if(!timeSlots.length) return alert("Select at least one time slot.");
   }
 
-  fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({studentID, group, day, timeSlots}) })
+  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({studentID,group,day,timeSlots})})
     .then(r=>r.json())
-    .then(_=> alert("Schedule Submitted!"));
+    .then(()=>alert("Schedule Submitted!"));
 });
 
-let chart;
+let chart, pie;
 
+/* ---- LOAD BAR CHART ---- */
 function loadChart(){
-  const loader = document.getElementById("refreshLoader");
-  loader.style.display="inline-block";
+  document.getElementById("refreshLoader").style.display="inline-block";
 
-  const group = document.getElementById("dashboardGroup").value;
-  const day = document.getElementById("daySelect").value;
+  const group = dashboardGroup.value;
+  const day = daySelect.value;
 
-  fetch(`${SCRIPT_URL}?group=${group}`).then(r=>r.json()).then(data=>{
-    loader.style.display="none";
-    document.getElementById("totalStudents").textContent = data.totalStudents;
+  fetch(`${SCRIPT_URL}?group=${group}`)
+    .then(r=>r.json())
+    .then(data=>{
+      document.getElementById("refreshLoader").style.display="none";
+      totalStudents.textContent = data.totalStudents;
 
-    const slots = Object.keys(data.freeTime[day]);
-    const values = Object.values(data.freeTime[day]);
+      const slots = Object.keys(data.freeTime[day]);
+      const values = Object.values(data.freeTime[day]);
 
-    if(chart) chart.destroy();
+      if(chart) chart.destroy();
 
-    chart = new Chart(document.getElementById("freeTimeChart"), {
-      type:"bar",
-      data:{
-        labels:slots,
-        datasets:[{
-          label:"Free %",
-          data:values,
-          backgroundColor:values.map(p=>"rgba(0,255,200,0.5)")
-        }]
-      },
-      options:{
-        responsive:true,
-        scales:{
-          y:{ beginAtZero:true, max:100 }
-        }
-      }
-    });
+      chart=new Chart(freeTimeChart,{
+        type:"bar",
+        data:{
+          labels:slots,
+          datasets:[{label:"Free %",data:values}]
+        },
+        options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}
+      });
   });
 }
 
-// Best Meeting Day
-document.getElementById("bestDayBtn").addEventListener("click", function(){
-  const loader = document.getElementById("bestDayLoader");
-  loader.style.display="inline-block";
+/* ---- BEST DAY PIE CHART ---- */
+document.getElementById("bestDayBtn").addEventListener("click",()=>{
+  document.getElementById("bestDayLoader").style.display="inline-block";
 
-  const group = document.getElementById("dashboardGroup").value;
+  const group = dashboardGroup.value;
 
   fetch(`${SCRIPT_URL}?group=${group}`).then(r=>r.json()).then(data=>{
-    loader.style.display="none";
+    document.getElementById("bestDayLoader").style.display="none";
 
-    let bestDay="", bestScore=-1;
-
-    for(const day in data.freeTime){
-      const values = Object.values(data.freeTime[day]);
-      const avg = values.reduce((a,b)=>a+b,0) / values.length;
-      if(avg > bestScore){
-        bestScore = avg;
-        bestDay = day;
-      }
+    let labels=[], values=[];
+    for(const d in data.freeTime){
+      const arr = Object.values(data.freeTime[d]);
+      labels.push(d);
+      values.push(arr.reduce((a,b)=>a+b,0)/arr.length);
     }
 
-    bestDayResult.textContent =
-      `Best Meeting Day: ${bestDay} (${bestScore.toFixed(1)}% students free)`;
+    if(pie) pie.destroy();
+    pie=new Chart(bestDayPie,{
+      type:"pie",
+      data:{
+        labels:labels,
+        datasets:[{data:values}]
+      }
+    });
+
+    // Show best day text
+    let maxVal=Math.max(...values);
+    let bestDay=labels[values.indexOf(maxVal)];
+    bestDayResult.textContent=`Best Day: ${bestDay} (${maxVal.toFixed(1)}% free)`;
   });
 });
 
-document.getElementById("daySelect").addEventListener("change", loadChart);
-document.getElementById("dashboardGroup").addEventListener("input", loadChart);
-document.getElementById("refreshBtn").addEventListener("click", loadChart);
 
-// Initial Chart Load
+daySelect.onchange = loadChart;
+dashboardGroup.oninput = loadChart;
+refreshBtn.onclick = loadChart;
+
 loadChart();
 </script>
 
