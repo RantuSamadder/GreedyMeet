@@ -72,7 +72,7 @@ document.getElementById("routineForm").addEventListener("submit", function(e){
 
   // Send each slot separately to Google Sheet
   checkedSlots.forEach(slot => {
-    fetch("YOUR_GOOGLE_SHEET_API_URL_HERE", { // <-- এখানে তোমার Web App URL বসাও
+    fetch("https://script.google.com/macros/s/AKfycbzcDewYT_a-_iv7tWn2GjotLR85YJIWUZz8NeJ8ZCUNx9PsNTWKFi0RGUTiQaZOwx6XWQ/exec", { // <-- এখানে তোমার Web App URL বসাও
       method: "POST",
       body: JSON.stringify({
         studentID, 
