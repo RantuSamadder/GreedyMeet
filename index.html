@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group Study Time Finder</title>
+<style>
+  body {font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;}
+  h2 {color: #333;}
+  form {background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+  .slot {margin: 5px 0;}
+  .campus-presence {background: yellow; padding: 2px 5px; border-radius: 4px;}
+  button {padding: 10px 20px; border: none; background: #28a745; color: #fff; border-radius: 5px; cursor: pointer;}
+  button:hover {background: #218838;}
+</style>
+</head>
+<body>
+
+<h2>Group Study Time Finder</h2>
+
+<form id="routineForm">
+  <label>Student ID: <input type="text" id="studentID" required></label><br><br>
+  <label>Date of Birth: <input type="date" id="dob" required></label><br><br>
+  <label>Semester: <input type="text" id="semester" required></label><br><br>
+  <label>Course: <input type="text" id="course" required></label><br><br>
+
+  <h3>Select your class slots:</h3>
+  <div id="slotsContainer"></div>
+
+  <br>
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+const slots = [
+  "08:30–09:50","08:00–10:00","08:30–10:00","09:00–10:00","10:00–11:20",
+  "10:00–12:00","11:30–12:50","11:30–13:30","13:30–14:50","13:30–15:30",
+  "15:00–16:20","15:00–17:00","16:30–18:30","16:30–17:50","17:00–19:00"
+];
+
+const container = document.getElementById("slotsContainer");
+
+// Generate checkboxes
+slots.forEach(slot => {
+  let div = document.createElement("div");
+  div.className = "slot";
+  div.innerHTML = `<label><input type="checkbox" value="${slot}"> ${slot}</label>`;
+  container.appendChild(div);
+});
+
+document.getElementById("routineForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const studentID = document.getElementById("studentID").value.trim();
+  const dob = document.getElementById("dob").value;
+  const semester = document.getElementById("semester").value.trim();
+  const course = document.getElementById("course").value.trim();
+
+  const checkedSlots = Array.from(document.querySelectorAll('#slotsContainer input[type="checkbox"]:checked'))
+                            .map(input => input.value);
+
+  if(checkedSlots.length === 0){
+    alert("Please select at least one slot!");
+    return;
+  }
+
+  // Check campus presence (multiple slots)
+  let campusPresence = "";
+  if(checkedSlots.length > 1){
+    campusPresence = "Present multiple slots today";
+  }
+
+  // Send each slot separately to Google Sheet
+  checkedSlots.forEach(slot => {
+    fetch("YOUR_GOOGLE_SHEET_API_URL_HERE", { // <-- এখানে তোমার Web App URL বসাও
+      method: "POST",
+      body: JSON.stringify({
+        studentID, 
+        dob, 
+        semester, 
+        course, 
+        day: new Date().toLocaleDateString(),
+        slot, 
+        campusPresence
+      }),
+      headers: {"Content-Type": "application/json"}
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch(err => console.error("Error:", err));
+  });
+
+  alert("Your schedule has been submitted successfully!");
+  this.reset();
+});
+</script>
+
+</body>
+</html>
