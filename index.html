@@ -1,101 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Group Study Time Finder</title>
-<style>
-  body {font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;}
-  h2 {color: #333;}
-  form {background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-  .slot {margin: 5px 0;}
-  .campus-presence {background: yellow; padding: 2px 5px; border-radius: 4px;}
-  button {padding: 10px 20px; border: none; background: #28a745; color: #fff; border-radius: 5px; cursor: pointer;}
-  button:hover {background: #218838;}
-</style>
+  <title>Student Free Time Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    canvas { max-width: 800px; }
+  </style>
 </head>
 <body>
-
-<h2>Group Study Time Finder</h2>
-
-<form id="routineForm">
-  <label>Student ID: <input type="text" id="studentID" required></label><br><br>
-  <label>Date of Birth: <input type="date" id="dob" required></label><br><br>
-  <label>Semester: <input type="text" id="semester" required></label><br><br>
-  <label>Group Name: <input type="text" id="course" required></label><br><br>
-
-  <h3>Select your class slots:</h3>
-  <div id="slotsContainer"></div>
-
-  <br>
-  <button type="submit">Submit</button>
-</form>
+<h2>Group Free Time Dashboard</h2>
+<select id="daySelect"></select>
+<canvas id="freeChart"></canvas>
 
 <script>
-const slots = [
-  "08:30–09:50","08:00–10:00","08:30–10:00","09:00–10:00","10:00–11:20",
-  "10:00–12:00","11:30–12:50","11:30–13:30","13:30–14:50","13:30–15:30",
-  "15:00–16:20","15:00–17:00","16:30–18:30","16:30–17:50","17:00–19:00"
-];
+const webAppURL = 'https://script.google.com/macros/s/AKfycbxloi8--GBTRosRV5yLUSLHLVnBiUAEgqoR5Sx8-inoTrGF0-SMZPNuSK9HR1OHbOpltQ/exec';
 
-const container = document.getElementById("slotsContainer");
+async function fetchData() {
+  const res = await fetch(webAppURL);
+  const data = await res.json();
+  return data;
+}
 
-// Generate checkboxes
-slots.forEach(slot => {
-  let div = document.createElement("div");
-  div.className = "slot";
-  div.innerHTML = `<label><input type="checkbox" value="${slot}"> ${slot}</label>`;
-  container.appendChild(div);
-});
-
-document.getElementById("routineForm").addEventListener("submit", function(e){
-  e.preventDefault();
-
-  const studentID = document.getElementById("studentID").value.trim();
-  const dob = document.getElementById("dob").value;
-  const semester = document.getElementById("semester").value.trim();
-  const course = document.getElementById("course").value.trim();
-
-  const checkedSlots = Array.from(document.querySelectorAll('#slotsContainer input[type="checkbox"]:checked'))
-                            .map(input => input.value);
-
-  if(checkedSlots.length === 0){
-    alert("Please select at least one slot!");
-    return;
-  }
-
-  // Check campus presence (multiple slots)
-  let campusPresence = "";
-  if(checkedSlots.length > 1){
-    campusPresence = "Present multiple slots today";
-  }
-
-  // Send each slot separately to Google Sheet
-  checkedSlots.forEach(slot => {
-    fetch("https://script.google.com/macros/s/AKfycbxAsvw-q2XTUQ83QaDRw4AKO4kBPKDAAoPIgHHXs2Z0dBbmVvJfRCUaYZmTVQe0KG3N7A/exec", { // <-- এখানে তোমার Web App URL বসাও
-      method: "POST",
-      body: JSON.stringify({
-        studentID, 
-        dob, 
-        semester, 
-        course, 
-        day: new Date().toLocaleDateString(),
-        slot, 
-        campusPresence
-      }),
-      headers: {"Content-Type": "application/json"}
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-    })
-    .catch(err => console.error("Error:", err));
+function populateDays(days){
+  const select = document.getElementById('daySelect');
+  days.forEach(day=>{
+    const opt = document.createElement('option');
+    opt.value = day;
+    opt.textContent = day;
+    select.appendChild(opt);
   });
+}
 
-  alert("Your schedule has been submitted successfully!");
-  this.reset();
-});
+function drawChart(slots, freePercent){
+  const ctx = document.getElementById('freeChart').getContext('2d');
+  if(window.myChart) window.myChart.destroy();
+  window.myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: slots,
+      datasets: [{
+        label: '% Students Free',
+        data: freePercent,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+      }]
+    },
+    options: { scales: { y: { beginAtZero:true, max:100 } } }
+  });
+}
+
+async function init(){
+  const data = await fetchData();
+  const days = Object.keys(data.freeData);
+  populateDays(days);
+  drawChart(data.slots, data.freeData[days[0]]);
+
+  document.getElementById('daySelect').addEventListener('change', (e)=>{
+    drawChart(data.slots, data.freeData[e.target.value]);
+  });
+}
+
+init();
 </script>
-
 </body>
 </html>
