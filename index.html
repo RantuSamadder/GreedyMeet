@@ -7,132 +7,180 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:'Courier New', monospace;
-  background:#03040a;
-  color:#00ffe0;
+/* CORE STYLES */
+body {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  background: #03040a;
+  color: #00ffe0;
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
 }
 
-/* Binary background */
-@keyframes floatBits{
-  from{transform:translateY(0);opacity:.5}
-  to{transform:translateY(-120vh);opacity:.8}
+/* Binary background animation */
+@keyframes floatBits {
+  from { transform: translateY(0); opacity: .5; }
+  to { transform: translateY(-120vh); opacity: .8; }
 }
-.binary{
-  position:fixed;
-  bottom:-10vh;
-  font-size:11px;
-  color:rgba(0,255,200,.25);
-  animation:floatBits linear infinite;
-  pointer-events:none;
-  z-index:-1;
-}
-
-/* Cards */
-.card{
-  background:rgba(0,255,200,.07);
-  border:1px solid #00ffc8;
-  border-radius:14px;
-  padding:16px;
-  margin:16px auto;
-  max-width:1100px;
-  box-shadow:0 0 16px #00ffc825;
+.binary {
+  position: fixed;
+  bottom: -10vh;
+  font-size: 11px;
+  color: rgba(0,255,200,.25);
+  animation: floatBits linear infinite;
+  pointer-events: none;
+  z-index: -1;
 }
 
-/* Inputs */
-input,select,button{
-  padding:10px;
-  margin:6px 0;
-  border-radius:6px;
-  border:1px solid #00ffc8;
-  background:#081616;
-  color:#00ffe0;
-  font-family:'Courier New', monospace; /* Ensure font consistency */
-}
-button{
-  cursor:pointer;
-  font-weight:bold;
-}
-button:hover{background:#003737}
-
-/* Spinner */
-.spinner{
-  display:none;
-  width:16px;
-  height:16px;
-  border:3px solid #00ffc844;
-  border-top:3px solid #00ffc8;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-left:8px;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Dropdown */
-.dropdown-content{
-  display:none;
-  background:#081818;
-  border:1px solid #00ffc8;
-  padding:8px;
-  max-height:200px;
-  overflow:auto;
+/* MAIN CONTAINER */
+.card {
+  background: rgba(0,255,200,.07);
+  border: 1px solid #00ffc8;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 1100px;
+  width: 90%; /* Responsive width */
+  box-shadow: 0 0 16px #00ffc825;
 }
 
-/* FLEX LAYOUT (For desktop/tablet) */
-.flex{
-  display:flex;
-  gap:16px;
-}
-@media(min-width:768px){
-  .left,.right{flex:1}
-}
-/* Mobile Layout (Stacks content) */
-@media(max-width:767px){
-  .flex{flex-direction:column} /* Stacks .left and .right vertically */
-  button,input,select{width:100%}
-  /* Optional: Ensure canvas takes full width on mobile */
-  #freeTimeChart{width:100% !important; height:auto !important;}
+/* INPUTS & BUTTONS */
+input, select, button {
+  padding: 12px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #00ffc8;
+  background: #081616;
+  color: #00ffe0;
+  box-sizing: border-box; /* Ensures padding doesn't break width */
+  width: 100%;
+  font-family: inherit;
 }
 
-/* OFF DAY INLINE */
-.offday-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin:6px 0;
+button {
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.3s;
 }
-.offday-row input{
-  width:auto;
-  margin:0;
+button:hover { background: #003737; }
+
+/* SPINNER */
+.spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #00ffc844;
+  border-top: 3px solid #00ffc8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- FLEX LAYOUT (Responsive) --- */
+.flex {
+  display: flex;
+  gap: 24px;
 }
 
-/* Highlight */
-.highlight{
-  background:#001f1f;
-  padding:8px;
-  border-left:4px solid #00ffc8;
-  margin:6px 0;
+/* Desktop: Side by Side */
+@media (min-width: 768px) {
+  .left, .right { flex: 1; }
+  /* Ensure chart container has height context */
+  .right { display: flex; align-items: center; } 
 }
 
-.toggle-btn{
-  background:#002828;
-  margin-bottom:8px;
-  width:100%; /* Make button full width on all screens */
+/* Mobile: Stacked Vertical */
+@media (max-width: 767px) {
+  .flex { flex-direction: column; }
+  .left, .right { width: 100%; }
+  
+  /* Add spacing between the Find section and the Chart */
+  .right {
+    margin-top: 20px; 
+    border-top: 1px solid #00ffc833; 
+    padding-top: 20px;
+    min-height: 300px; /* Ensure chart area isn't too small */
+  }
+}
+
+/* --- UPDATED DROPDOWN STYLING --- */
+.dropdown-content {
+  display: none;
+  background: #081818;
+  border: 1px solid #00ffc8;
+  padding: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: -5px;
+  margin-bottom: 10px;
+  border-radius: 0 0 6px 6px;
+}
+
+/* Specific styling for the Checkbox Labels (New lines, Compact, Aligned) */
+.dropdown-content label {
+  display: flex;          /* Flexbox for alignment */
+  align-items: center;    /* Vertically center text with box */
+  padding: 6px 8px;       /* Compact padding */
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.dropdown-content label:hover {
+  background: rgba(0, 255, 200, 0.15);
+}
+
+/* Custom checkbox spacing */
+.dropdown-content input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0 12px 0 0; /* Margin-right pushes text away slightly */
+  cursor: pointer;
+  accent-color: #00ffc8; /* Colors the checkmark */
+}
+
+/* OFF DAY ROW */
+.offday-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  background: #001f1f;
+  padding: 8px;
+  border-radius: 6px;
+}
+.offday-row input {
+  width: 20px;
+  margin: 0;
+}
+
+/* HIGHLIGHT BOXES */
+.highlight {
+  background: #001f1f;
+  padding: 10px;
+  border-left: 4px solid #00ffc8;
+  margin: 8px 0;
+  font-size: 0.9em;
+}
+
+.toggle-btn {
+  background: #002828;
+  margin-bottom: 12px;
+  border: 1px dashed #00ffc8;
 }
 
 /* FOOTER */
-footer{
-  text-align:center;
-  padding:14px;
-  margin-top:20px;
-  font-size:13px;
-  color:#00ffc8;
-  opacity:.7;
-  border-top:1px solid #00ffc833;
-}
-footer span{
-  opacity:.9;
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #00ffc8;
+  opacity: .7;
+  border-top: 1px solid #00ffc833;
 }
 </style>
 </head>
@@ -140,8 +188,7 @@ footer span{
 <body>
 
 <script>
-// --- Binary Background Script ---
-for(let i=0;i<120;i++){
+for(let i=0;i<80;i++){
   const b=document.createElement("div");
   b.className="binary";
   b.style.left=Math.random()*100+"vw";
@@ -152,283 +199,241 @@ for(let i=0;i<120;i++){
 </script>
 
 <div class="card">
-<h2 style="text-align:center">📊 GreedyMeet – Meeting Slot Finder for Groups</h2>
+  <h2 style="text-align:center; margin-bottom:20px;">📊 GreedyMeet</h2>
 
-<div class="flex">
+  <div class="flex">
 
-<div class="left">
+    <div class="left">
 
-<button class="toggle-btn" onclick="toggleForm()">➕ Submit Your Class Schedule</button>
+      <button class="toggle-btn" onclick="toggleForm()">➕ Submit Your Class Schedule</button>
 
-<form id="scheduleForm" style="display:none">
+      <form id="scheduleForm" style="display:none">
+        <input id="studentID" placeholder="Student ID" required>
+        <input id="group" placeholder="Group Name" required>
 
-<input id="studentID" placeholder="Student ID" required>
-<input id="group" placeholder="Group Name" required>
+        <select id="day">
+          <option>Saturday</option><option>Sunday</option><option>Monday</option>
+          <option>Tuesday</option><option>Wednesday</option>
+          <option>Thursday</option><option>Friday</option>
+        </select>
 
-<select id="day">
-<option>Saturday</option><option>Sunday</option><option>Monday</option>
-<option>Tuesday</option><option>Wednesday</option>
-<option>Thursday</option><option>Friday</option>
-</select>
+        <div class="offday-row">
+          <input type="checkbox" id="offDay">
+          <label for="offDay" style="cursor:pointer">Mark as OFF day (No Class)</label>
+        </div>
 
-<div class="offday-row">
-  <input type="checkbox" id="offDay">
-  <label for="offDay">OFF day</label>
-</div>
+        <div id="slotBox">
+          <button type="button" onclick="toggleSlots()">Select Time Slots ▼</button>
+          <div class="dropdown-content" id="slotDropdown">
+            <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
+            <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
+            <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
+            <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
+            <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
+            <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
+            <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
+            <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
+            <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
+            <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
+            <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
+            <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
+            <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
+            <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
+            <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
+          </div>
+        </div>
 
-<div id="slotBox">
-<button type="button" onclick="toggleSlots()">Select Time Slots ▼</button>
-<div class="dropdown-content" id="slotDropdown">
-<label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label><br>
-<label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label><br>
-<label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label><br>
-<label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
-</div>
-</div>
+        <button type="submit" style="background:#005544; border-color:#00ffc8;">Submit Data</button>
+      </form>
 
-<button type="submit">Submit Schedule</button>
-</form>
+      <hr style="border-color:#00ffc833; margin: 20px 0;">
 
-<hr style="border-color:#00ffc833">
+      <h3 style="margin-top:0">🔍 Find Optimal Slot</h3>
+      
+      <input id="dashboardGroup" placeholder="Enter Group Name to Search">
 
-<h3>Find Group Availability</h3>
+      <select id="daySelect">
+        <option>Saturday</option><option>Sunday</option><option>Monday</option>
+        <option>Tuesday</option><option>Wednesday</option>
+        <option>Thursday</option><option>Friday</option>
+      </select>
 
-<input id="dashboardGroup" placeholder="Group Name" required>
+      <button onclick="loadChart()">
+        🔍 Find Availability
+        <span class="spinner" id="loader"></span>
+      </button>
 
-<select id="daySelect">
-<option>Saturday</option><option>Sunday</option><option>Monday</option>
-<option>Tuesday</option><option>Wednesday</option>
-<option>Thursday</option><option>Friday</option>
-</select>
+      <p style="margin-top:15px">Total Students Responded: <b><span id="totalStudents" style="font-size:1.2em">0</span></b></p>
 
-<button onclick="loadChart()">
-  🔍 Find Availability
-  <span class="spinner" id="loader"></span>
-</button>
+      <div class="highlight" id="bestSlot">Best Slot: —</div>
+      <div class="highlight" id="bestDay">Best Day: —</div>
 
-<p>Total Students Submitted: <b><span id="totalStudents">0</span></b></p>
+    </div>
 
-<div class="highlight" id="bestSlot">Best Slot: </div>
-<div class="highlight" id="bestDay">Best Day: </div>
+    <div class="right">
+      <canvas id="freeTimeChart"></canvas>
+    </div>
 
-</div>
-
-<div class="right">
-<canvas id="freeTimeChart"></canvas>
-</div>
-
-</div>
+  </div>
 </div>
 
 <footer>
-  <span>© Fall 25 GreedyMeet | Algorithm Lab Project | All rights reserved.</span>
+  <span>© Fall 25 GreedyMeet | Algorithm Lab Project | All rights reserved.</span> 
 </footer>
 
 <script>
-// NOTE: Replace this with your actual Google Apps Script URL
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxlG57FNrAulG6SFlYp4m7BUG5BEaqgecY1lQR-0sRf8rfqjvK5L7meeDgiTgXh44duqQ/exec";
 
+// Toggle Form Visibility
 function toggleForm(){
-  scheduleForm.style.display =
-    scheduleForm.style.display==="none"?"block":"none";
-}
-function toggleSlots(){
-  // Toggle the visibility of the dropdown content
-  const currentDisplay = slotDropdown.style.display;
-  slotDropdown.style.display = currentDisplay === "block" ? "none" : "block";
+  const form = document.getElementById('scheduleForm');
+  form.style.display = form.style.display === "none" ? "block" : "none";
 }
 
-// Event listener for the 'OFF day' checkbox
-document.getElementById('offDay').onchange=function(){
-  document.getElementById('slotBox').style.display = this.checked ? "none" : "block";
+// Toggle Slots Dropdown
+function toggleSlots(){
+  const dropdown = document.getElementById('slotDropdown');
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+}
+
+// Handle Off Day Checkbox
+const offDay = document.getElementById('offDay');
+const slotBox = document.getElementById('slotBox');
+offDay.onchange = () => {
+  slotBox.style.display = offDay.checked ? "none" : "block";
 };
 
-// Form Submission Handler
-document.getElementById('scheduleForm').onsubmit=e=>{
+// Form Submission
+document.getElementById('scheduleForm').onsubmit = (e) => {
   e.preventDefault();
-  
-  const studentID = document.getElementById('studentID').value;
-  const group = document.getElementById('group').value;
-  const day = document.getElementById('day').value;
-  const offDayChecked = document.getElementById('offDay').checked;
-  
-  let slots;
-  if (offDayChecked) {
-    slots = ["OFF"];
-  } else {
-    // Get all checked checkboxes in the slotDropdown and map their values
-    slots = [...document.querySelectorAll("#slotDropdown input:checked")].map(x=>x.value);
-    
-    // Basic validation check if no slots are selected and it's not an OFF day
-    if (slots.length === 0) {
-      alert("Please select at least one time slot or check 'OFF day'.");
-      return; 
-    }
+  const slotDropdown = document.getElementById('slotDropdown');
+  const slots = offDay.checked
+    ? ["OFF"]
+    : [...slotDropdown.querySelectorAll("input:checked")].map(x => x.value);
+
+  // Simple validation
+  if(!offDay.checked && slots.length === 0) {
+    alert("Please select at least one time slot or mark as OFF day.");
+    return;
   }
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = "Sending...";
+  submitBtn.disabled = true;
 
   fetch(SCRIPT_URL,{
     method:"POST",
-    headers: {
-        'Content-Type': 'application/json',
-    },
     body:JSON.stringify({
-      studentID:studentID,
-      group:group,
-      day:day,
-      timeSlots:slots
+      studentID: document.getElementById('studentID').value,
+      group: document.getElementById('group').value,
+      day: document.getElementById('day').value,
+      timeSlots: slots
     })
-  })
-  .then(response => response.ok ? response.text() : Promise.reject('Submission failed'))
-  .then(()=>alert("Schedule Submitted Successfully! ✅"))
-  .catch(error => {
-    console.error('Error:', error);
-    alert("Submission Failed. Check console for details.");
+  }).then(() => {
+    alert("Submitted Successfully ✅");
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+    toggleForm(); // Hide form after submit
+  }).catch(err => {
+    alert("Error submitting data.");
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
   });
 };
 
+// Chart Loading Logic
 let chart;
-
-// Function to fetch data and draw the chart
 function loadChart(){
-  const groupName = document.getElementById('dashboardGroup').value;
-  if (!groupName) {
-      alert("Please enter a Group Name to find availability.");
-      return;
+  const dashboardGroup = document.getElementById('dashboardGroup');
+  const daySelect = document.getElementById('daySelect');
+  const loader = document.getElementById('loader');
+
+  if(!dashboardGroup.value) {
+    alert("Please enter a group name");
+    return;
   }
-  
-  const selectedDay = document.getElementById('daySelect').value;
-  loader.style.display="inline-block";
 
-  fetch(`${SCRIPT_URL}?group=${encodeURIComponent(groupName)}`)
-  .then(r => {
-    if (!r.ok) {
-        throw new Error(`HTTP error! status: ${r.status}`);
-    }
-    return r.json();
-  })
-  .then(data=>{
-    loader.style.display="none";
-    
-    // Check if data structure is valid
-    if (!data || !data.freeTime) {
-        totalStudents.textContent = 0;
-        bestSlot.textContent = "Best Slot: No data received.";
-        bestDay.textContent = "Best Day: No data received.";
-        if (chart) chart.destroy();
-        alert("No data found for this group, or API structure is incorrect.");
-        return;
+  loader.style.display = "inline-block";
+
+  fetch(`${SCRIPT_URL}?group=${dashboardGroup.value}`)
+  .then(r => r.json())
+  .then(data => {
+    loader.style.display = "none";
+    document.getElementById('totalStudents').textContent = data.totalStudents;
+
+    // Handle case where group doesn't exist
+    if(!data.freeTime || !data.freeTime[daySelect.value]) {
+       alert("No data found for this group/day.");
+       return;
     }
 
-    totalStudents.textContent=data.totalStudents || 0;
+    const dayData = data.freeTime[daySelect.value];
+    const labels = Object.keys(dayData);
+    const values = Object.values(dayData);
 
-    const dayData=data.freeTime[selectedDay] || {};
-    const labels=Object.keys(dayData).filter(key => key !== 'OFF'); // Exclude 'OFF' from chart
-    const values=labels.map(label => dayData[label]); // Get corresponding values
-
-    // Check if there are any slots for the selected day (excluding OFF)
-    if (labels.length === 0) {
-        if (chart) chart.destroy();
-        const offCount = dayData['OFF'] || 0;
-        alert(`No class slots found for ${selectedDay}. ${offCount} students marked it as an OFF day.`);
-        bestSlot.textContent = `Best Slot: N/A for ${selectedDay}.`;
-        bestDay.textContent = `Best Day: Recalculating...`;
-    }
-
-    const ctx = document.getElementById("freeTimeChart").getContext("2d");
-    const gradient = ctx.createLinearGradient(0,0,0,300);
-    gradient.addColorStop(0,"#00ffe0");
-    gradient.addColorStop(1,"#007f73");
+    // Update Chart
+    const ctx = document.getElementById('freeTimeChart').getContext("2d");
+    const gradient = ctx.createLinearGradient(0,0,0,400);
+    gradient.addColorStop(0, "#00ffe0");
+    gradient.addColorStop(1, "#007f73");
 
     if(chart) chart.destroy();
     
-    chart=new Chart(ctx,{
-      type:"bar",
-      data:{
-        labels:labels,
-        datasets:[{
-          data:values,
-          label:"Free Students %",
-          backgroundColor:gradient,
-          borderColor:"#00ffc8",
-          borderWidth:1,
-          borderRadius:6
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "% Students Free",
+          data: values,
+          backgroundColor: gradient,
+          borderColor: "#00ffc8",
+          borderWidth: 1,
+          borderRadius: 4,
+          hoverBackgroundColor: "#fff"
         }]
       },
-      options:{
+      options: {
         responsive: true,
-        maintainAspectRatio: false, // Allows chart to resize on mobile
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
-        scales:{
-          y:{
-            beginAtZero:true,
-            max:100,
-            title: {
-                display: true,
-                text: 'Percentage of Free Students',
-                color: '#00ffc8'
-            },
-            ticks: {
-                color: '#00ffe0'
-            },
-            grid:{color:"#00ffc822"}
+        maintainAspectRatio: false, // Important for mobile sizing
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: "#00ffc822" },
+            ticks: { color: "#00ffc8" }
           },
-          x:{
-            ticks: {
-                color: '#00ffe0'
-            },
-            grid:{color:"#00ffc811"}
+          x: {
+            grid: { display: false },
+            ticks: { color: "#00ffc8", autoSkip: false, maxRotation: 90, minRotation: 45 }
           }
+        },
+        plugins: {
+          legend: { labels: { color: "#00ffc8" } }
         }
       }
     });
-    
-    // --- Best Slot Calculation for the selected day ---
-    let max = -1;
-    let slot = "N/A";
-    if (values.length > 0) {
-        max = Math.max(...values);
-        slot = labels[values.indexOf(max)];
-    }
-    
-    bestSlot.innerHTML=`Best Slot on <b>${selectedDay}</b>: ${slot} (${max.toFixed(1)}% free)`;
 
-    // --- Best Day Calculation (Averaging all days) ---
-    let bestD="",bestAvg=-1;
-    let totalSlots = 0; // Number of slots (excluding 'OFF')
-    if (labels.length > 0) {
-        totalSlots = labels.length;
-    }
+    // Calculate Insights
+    let max = Math.max(...values);
+    let slot = labels[values.indexOf(max)];
+    document.getElementById('bestSlot').textContent = `Best Slot: ${slot} (${max}% free)`;
 
+    let bestD = "", bestAvg = 0;
     for(const d in data.freeTime){
-        const daySlots = data.freeTime[d];
-        const dayValues = Object.keys(daySlots).filter(key => key !== 'OFF').map(key => daySlots[key]);
-        
-        if (dayValues.length > 0) {
-            let sum = dayValues.reduce((a,b)=>a+b,0);
-            let avg = sum / dayValues.length;
-            
-            if(avg>bestAvg){
-                bestAvg=avg;
-                bestD=d;
-            }
-        }
+      let dayVals = Object.values(data.freeTime[d]);
+      if(dayVals.length > 0) {
+        let avg = dayVals.reduce((a,b)=>a+b,0) / dayVals.length;
+        if(avg > bestAvg){ bestAvg = avg; bestD = d; }
+      }
     }
-    
-    if (bestD) {
-        bestDay.innerHTML=`Best Day overall: <b>${bestD}</b> (Avg ${bestAvg.toFixed(1)}% free)`;
-    } else {
-        bestDay.innerHTML=`Best Day overall: Not enough class data to calculate.`;
-    }
-
+    document.getElementById('bestDay').textContent = `Best Day Overall: ${bestD} (~${bestAvg.toFixed(1)}% free)`;
   })
-  .catch(error => {
-    loader.style.display="none";
-    console.error('Fetch Error:', error);
-    alert(`Failed to load data. Please check the Group Name and API URL. Error: ${error.message}`);
+  .catch(err => {
+    loader.style.display = "none";
+    console.error(err);
+    alert("Failed to fetch data.");
   });
 }
 </script>
