@@ -6,304 +6,302 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ======= GLOBAL FUTURISTIC HACKER THEME ======= */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Courier New', monospace;
-    background: #03040a;
-    color: #00ffe0;
-    overflow-x: hidden;
+body{
+  margin:0;
+  font-family:'Courier New', monospace;
+  background:#03040a;
+  color:#00ffe0;
 }
 
-/* --- Floating binary particles --- */
-@keyframes floatBits {
-  0% { transform: translateY(0); opacity: 0.6; }
-  100% { transform: translateY(-120vh); opacity: 0.8; }
+/* Binary background */
+@keyframes floatBits{
+  from{transform:translateY(0);opacity:.5}
+  to{transform:translateY(-120vh);opacity:.8}
 }
-.binary {
-  position: fixed;
-  bottom: -10vh;
-  font-size: 12px;
-  color: rgba(0,255,200,0.25); /* slightly stronger visibility */
-  animation: floatBits linear infinite;
-  pointer-events: none;
-  z-index: -1;
-  text-shadow: 0 0 6px #00ffcc, 0 0 10px #00ffcc; /* neon glow effect */
+.binary{
+  position:fixed;
+  bottom:-10vh;
+  font-size:11px;
+  color:rgba(0,255,200,.25);
+  animation:floatBits linear infinite;
+  pointer-events:none;
+  z-index:-1;
 }
 
-/* Cyber Glass Cards */
-form, .dashboard-section {
-    background: rgba(0, 255, 200, 0.07);
-    border: 1px solid #00ffc8;
-    padding: 20px;
-    border-radius: 16px;
-    margin: 20px auto;
-    width: 95%;
-    max-width: 900px;
-    box-shadow: 0 0 18px #00ffc825;
-    backdrop-filter: blur(6px);
+/* Cards */
+.card{
+  background:rgba(0,255,200,.07);
+  border:1px solid #00ffc8;
+  border-radius:14px;
+  padding:16px;
+  margin:16px auto;
+  max-width:1100px;
+  box-shadow:0 0 16px #00ffc825;
 }
 
 /* Inputs */
-input, select {
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 6px;
-    border: 1px solid #00ffc8;
-    background: #081616;
-    color: #00ffe0;
-    width: 260px;
+input,select,button{
+  padding:10px;
+  margin:6px 0;
+  border-radius:6px;
+  border:1px solid #00ffc8;
+  background:#081616;
+  color:#00ffe0;
+}
+button{
+  cursor:pointer;
+  font-weight:bold;
+}
+button:hover{background:#003737}
+
+/* Spinner */
+.spinner{
+  display:none;
+  width:16px;
+  height:16px;
+  border:3px solid #00ffc844;
+  border-top:3px solid #00ffc8;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin-left:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Dropdown */
+.dropdown-content{
+  display:none;
+  background:#081818;
+  border:1px solid #00ffc8;
+  padding:8px;
+  max-height:200px;
+  overflow:auto;
 }
 
-/* Buttons */
-button {
-    background: #001a1a;
-    color: #00ffe0;
-    border: 1px solid #00ffc8;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
+/* FLEX LAYOUT */
+.flex{
+  display:flex;
+  gap:16px;
 }
-button:hover { background: #003737; }
-
-/* Loader */
-.loader {
-    border: 3px solid #003c3c;
-    border-top: 3px solid #00ffea;
-    border-radius: 50%;
-    width: 14px;
-    height: 14px;
-    animation: spin 1s linear infinite;
-    display: none;
+@media(min-width:768px){
+  .left,.right{flex:1}
 }
-@keyframes spin {100% {transform: rotate(360deg);}}
-
-/* Dropdown checkbox */
-.dropdown-box { margin: 10px 0; }
-.dropdown-btn {
-    width: 260px;
-    padding: 10px;
-    background:#001a1a;
-    color:#00ffe0;
-    border:1px solid #00ffc8;
-    border-radius:6px;
-    cursor:pointer;
-}
-.dropdown-content {
-    display:none;
-    background:#081818;
-    border:1px solid #00ffc8;
-    border-radius:6px;
-    padding:10px;
-    margin-top:5px;
-    max-height:220px;
-    overflow-y:auto;
-}
-.dropdown-content label {
-    display:block;
-    padding:3px 0;
-    font-size: 14px;
+@media(max-width:767px){
+  .flex{flex-direction:column}
+  button,input,select{width:100%}
 }
 
-/* OFF DAY CHECKBOX */
-.offday-row {
-    display:flex;
-    align-items:center;
-    gap:6px;
-    margin:10px 0;
+/* OFF DAY INLINE */
+.offday-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:6px 0;
+}
+.offday-row input{
+  width:auto;
+  margin:0;
 }
 
-/* DASHBOARD GRID */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-}
-.dashboard-grid > div {
-    background: rgba(0,255,200,0.05);
-    border: 1px solid #00ffc8;
-    padding: 12px;
-    border-radius:10px;
+/* Highlight */
+.highlight{
+  background:#001f1f;
+  padding:8px;
+  border-left:4px solid #00ffc8;
+  margin:6px 0;
 }
 
-/* Chart sizing */
-#bestDayPie {
-    max-width: 320px;
-    margin: 0 auto;
-    display:block;
-}
-#freeTimeChart {
-    max-width: 100%;
-    margin: 10px auto;
+.toggle-btn{
+  background:#002828;
+  margin-bottom:8px;
 }
 
-/* Responsive */
-@media(max-width:700px){
-    .dashboard-grid { grid-template-columns: 1fr; }
-    input, select, .dropdown-btn { width:100%; }
-    #bestDayPie { max-width: 95%; }
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:14px;
+  margin-top:20px;
+  font-size:13px;
+  color:#00ffc8;
+  opacity:.7;
+  border-top:1px solid #00ffc833;
+}
+footer span{
+  opacity:.9;
 }
 </style>
 </head>
+
 <body>
 
-<!-- FLOATING BINARY PARTICLES -->
 <script>
-for(let i=0;i<150;i++){ // more particles for hacker effect
-  const particle = document.createElement("div");
-  particle.className = "binary";
-  particle.style.left = Math.random()*100 + "vw";
-  particle.style.fontSize = 10 + Math.random()*8 + "px";
-  particle.style.animationDuration = (6 + Math.random()*14) + "s"; // varying speed
-  particle.style.animationDelay = (Math.random()*10) + "s";
-  particle.textContent = Math.random() > 0.5 ? "0" : "1";
-  document.body.appendChild(particle);
+for(let i=0;i<120;i++){
+  const b=document.createElement("div");
+  b.className="binary";
+  b.style.left=Math.random()*100+"vw";
+  b.style.animationDuration=(6+Math.random()*12)+"s";
+  b.textContent=Math.random()>.5?"0":"1";
+  document.body.appendChild(b);
 }
 </script>
 
-<h2 style="text-align:center;margin-top:30px;">Submit Your Class Schedule</h2>
+<div class="card">
+<h2 style="text-align:center">📊 GreedyMeet – Meeting Slot Finder for Groups</h2>
 
-<form id="scheduleForm">
-  <input type="text" id="studentID" placeholder="Student ID" required>
-  <input type="text" id="group" placeholder="Group Name" required>
+<div class="flex">
 
-  <select id="day">
-    <option>Saturday</option><option>Sunday</option>
-    <option>Monday</option><option>Tuesday</option>
-    <option>Wednesday</option><option>Thursday</option>
-    <option>Friday</option>
-  </select>
+<!-- LEFT -->
+<div class="left">
 
-  <h3>Select Your Time Slots</h3>
+<button class="toggle-btn" onclick="toggleForm()">➕ Submit Your Class Schedule</button>
 
-  <div class="offday-row">
-    <input type="checkbox" id="offDay">
-    <label for="offDay">This is my OFF Day</label>
-  </div>
+<form id="scheduleForm" style="display:none">
 
-  <div id="slotBox">
-    <div class="dropdown-box">
-      <button type="button" class="dropdown-btn" onclick="toggleSlots()">Select Time Slots ▼</button>
-      <div class="dropdown-content" id="slotDropdown">
-        <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
-        <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
-        <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
-        <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
-        <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
-        <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
-        <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
-        <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
-        <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
-        <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
-        <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
-        <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
-        <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
-        <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
-        <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
-      </div>
-    </div>
-  </div>
+<input id="studentID" placeholder="Student ID" required>
+<input id="group" placeholder="Group Name" required>
 
-  <button type="submit">Submit</button>
+<select id="day">
+<option>Saturday</option><option>Sunday</option><option>Monday</option>
+<option>Tuesday</option><option>Wednesday</option>
+<option>Thursday</option><option>Friday</option>
+</select>
+
+<div class="offday-row">
+  <input type="checkbox" id="offDay">
+  <label for="offDay">OFF day</label>
+</div>
+
+<div id="slotBox">
+<button type="button" onclick="toggleSlots()">Select Time Slots ▼</button>
+<div class="dropdown-content" id="slotDropdown">
+<label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label><br>
+<label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label><br>
+<label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label><br>
+<label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
+</div>
+</div>
+
+<button type="submit">Submit</button>
 </form>
 
-<!-- DASHBOARD -->
-<div class="dashboard-section">
-<h2 style="text-align:center;">Group Free Time Dashboard</h2>
+<hr style="border-color:#00ffc833">
 
-<div class="dashboard-grid">
+<input id="dashboardGroup" placeholder="Group Name">
 
-  <!-- Controls -->
-  <div>
-    <h3>Dashboard Controls</h3>
-    <input type="text" id="dashboardGroup" placeholder="Group Name">
-    <select id="daySelect">
-      <option>Saturday</option><option>Sunday</option>
-      <option>Monday</option><option>Tuesday</option>
-      <option>Wednesday</option><option>Thursday</option>
-      <option>Friday</option>
-    </select>
-    <p>Total inputed Students in Group : <span id="totalStudents">0</span></p>
+<select id="daySelect">
+<option>Saturday</option><option>Sunday</option><option>Monday</option>
+<option>Tuesday</option><option>Wednesday</option>
+<option>Thursday</option><option>Friday</option>
+</select>
 
-    <button id="bestDayBtn">Find Next Best Meeting Day</button>
-    <span class="loader" id="bestDayLoader"></span>
-    <p id="bestDayResult"></p>
-  </div>
+<button onclick="loadChart()">
+  🔍 Find
+  <span class="spinner" id="loader"></span>
+</button>
 
-  <!-- Bar chart -->
-  <div>
-    <h3>Daily Slot Free % (Bar Chart)</h3>
-    <canvas id="freeTimeChart"></canvas>
-  </div>
+<p>Total Students: <b><span id="totalStudents">0</span></b></p>
+
+<div class="highlight" id="bestSlot">Best Slot: </div>
+<div class="highlight" id="bestDay">Best Day: </div>
 
 </div>
 
-<hr style="border-color:#00ffc855;margin:25px 0;">
-
-<h3 style="text-align:center;">Best Day Pie Chart</h3>
-<canvas id="bestDayPie"></canvas>
+<!-- RIGHT -->
+<div class="right">
+<canvas id="freeTimeChart"></canvas>
+</div>
 
 </div>
+</div>
+
+<footer>
+  <span>© Fall 25 GreedyMeet | Algorithm Lab Project • All rights reserved.</span>
+</footer>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS3seRQOGe5SEHUSiwkaP1kn66SZ836AKaVySZaR5vwinu2PwdHqNfEwTt07gPqtM9/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxlG57FNrAulG6SFlYp4m7BUG5BEaqgecY1lQR-0sRf8rfqjvK5L7meeDgiTgXh44duqQ/exec";
 
-/* Dropdown toggle */
+function toggleForm(){
+  scheduleForm.style.display =
+    scheduleForm.style.display==="none"?"block":"none";
+}
 function toggleSlots(){
-  const box = document.getElementById("slotDropdown");
-  box.style.display = (box.style.display==="block") ? "none" : "block";
+  slotDropdown.style.display =
+    slotDropdown.style.display==="block"?"none":"block";
 }
-
-/* OFF DAY HIDES SLOTS */
-offDay.addEventListener("change",()=>{
+offDay.onchange=()=>{
   slotBox.style.display = offDay.checked ? "none" : "block";
-});
+};
 
-/* SUBMIT FORM */
-scheduleForm.addEventListener("submit", e=>{
+scheduleForm.onsubmit=e=>{
   e.preventDefault();
-  const sid=studentID.value, g=group.value, d=day.value;
-  let slots = offDay.checked ? ["OFF"] : [...document.querySelectorAll("#slotDropdown input:checked")].map(cb=>cb.value);
-  if(!slots.length && !offDay.checked) return alert("Select at least one slot!");
-  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({studentID:sid, group:g, day:d, timeSlots:slots})})
-    .then(r=>r.json()).then(()=>alert("Schedule Submitted!"));
-});
+  const slots = offDay.checked
+    ? ["OFF"]
+    : [...slotDropdown.querySelectorAll("input:checked")].map(x=>x.value);
 
-let chart, pie;
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      studentID:studentID.value,
+      group:group.value,
+      day:day.value,
+      timeSlots:slots
+    })
+  }).then(()=>alert("Submitted ✅"));
+};
 
-/* LOAD BAR CHART */
+let chart;
 function loadChart(){
-  const group=dashboardGroup.value, day=daySelect.value;
-  fetch(`${SCRIPT_URL}?group=${group}`).then(r=>r.json()).then(data=>{
+  loader.style.display="inline-block";
+
+  fetch(`${SCRIPT_URL}?group=${dashboardGroup.value}`)
+  .then(r=>r.json())
+  .then(data=>{
+    loader.style.display="none";
     totalStudents.textContent=data.totalStudents;
-    const slots=Object.keys(data.freeTime[day]), values=Object.values(data.freeTime[day]);
+
+    const dayData=data.freeTime[daySelect.value];
+    const labels=Object.keys(dayData);
+    const values=Object.values(dayData);
+
+    const ctx = freeTimeChart.getContext("2d");
+    const gradient = ctx.createLinearGradient(0,0,0,300);
+    gradient.addColorStop(0,"#00ffe0");
+    gradient.addColorStop(1,"#007f73");
+
     if(chart) chart.destroy();
-    chart=new Chart(freeTimeChart,{type:"bar",data:{labels:slots,datasets:[{label:"Free %",data:values}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
+    chart=new Chart(freeTimeChart,{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[{
+          data:values,
+          label:"Free %",
+          backgroundColor:gradient,
+          borderColor:"#00ffc8",
+          borderWidth:1,
+          borderRadius:6
+        }]
+      },
+      options:{
+        scales:{
+          y:{beginAtZero:true,max:100,grid:{color:"#00ffc822"}},
+          x:{grid:{color:"#00ffc811"}}
+        }
+      }
+    });
+
+    let max=Math.max(...values);
+    let slot=labels[values.indexOf(max)];
+    bestSlot.textContent=`Best Slot: ${slot} (${max}% free)`;
+
+    let bestD="",bestAvg=0;
+    for(const d in data.freeTime){
+      let avg=Object.values(data.freeTime[d]).reduce((a,b)=>a+b,0)/labels.length;
+      if(avg>bestAvg){bestAvg=avg;bestD=d;}
+    }
+    bestDay.textContent=`Best Day: ${bestD} (${bestAvg.toFixed(1)}%)`;
   });
 }
-
-/* PIE CHART */
-bestDayBtn.addEventListener("click",()=>{
-  bestDayLoader.style.display="inline-block";
-  fetch(`${SCRIPT_URL}?group=${dashboardGroup.value}`).then(r=>r.json()).then(data=>{
-    bestDayLoader.style.display="none";
-    const labels=[], values=[];
-    for(const d in data.freeTime){
-      const arr=Object.values(data.freeTime[d]);
-      labels.push(d); values.push(arr.reduce((a,b)=>a+b,0)/arr.length);
-    }
-    if(pie) pie.destroy();
-    pie=new Chart(bestDayPie,{type:"pie",data:{labels,datasets:[{data:values}]},options:{responsive:true}});
-    let max=Math.max(...values), best=labels[values.indexOf(max)];
-    bestDayResult.textContent=`Best Day: ${best} (${max.toFixed(1)}% free)`;
-  });
-});
-
-daySelect.onchange=loadChart;
-dashboardGroup.oninput=loadChart;
-loadChart();
 </script>
 
 </body>
