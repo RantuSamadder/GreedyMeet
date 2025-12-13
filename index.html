@@ -79,13 +79,13 @@ button:hover { background: #003737; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* --- SCHEDULE GRID STYLES (NEW) --- */
+/* --- SCHEDULE GRID STYLES --- */
 .grid-container {
-  overflow-x: auto; /* Scroll horizontally on mobile */
+  overflow-x: auto;
   margin: 15px 0;
   border: 1px solid #00ffc8;
   border-radius: 8px;
-  max-height: 500px; /* Vertical scroll if too tall */
+  max-height: 500px;
   overflow-y: auto;
   background: #020a0a;
 }
@@ -93,7 +93,7 @@ button:hover { background: #003737; }
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px; /* Forces scroll on small screens */
+  min-width: 800px;
 }
 
 th, td {
@@ -121,7 +121,7 @@ tbody td:first-child, thead th:first-child {
   background: #081616;
   font-weight: bold;
   border-right: 2px solid #00ffc8;
-  z-index: 11; /* Higher than normal headers */
+  z-index: 11;
   min-width: 110px;
 }
 
@@ -139,6 +139,37 @@ input[type="checkbox"] {
   margin: 0;
 }
 
+/* --- DAY SELECTION DROPDOWN STYLING (NEW) --- */
+.day-dropdown-content {
+  display: none;
+  background: #081818;
+  border: 1px solid #00ffc8;
+  padding: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: -5px;
+  margin-bottom: 10px;
+  border-radius: 0 0 6px 6px;
+  text-align: left;
+}
+.day-dropdown-content label {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.day-dropdown-content label:hover {
+  background: rgba(0, 255, 200, 0.15);
+}
+.day-dropdown-content input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0 12px 0 0;
+}
+
+
 /* --- FLEX LAYOUT --- */
 .flex {
   display: flex;
@@ -146,7 +177,7 @@ input[type="checkbox"] {
 }
 
 @media (min-width: 900px) {
-  .left { flex: 1.2; } /* Give more space to grid */
+  .left { flex: 1.2; }
   .right { flex: 0.8; display: flex; align-items: center; } 
 }
 
@@ -247,12 +278,21 @@ for(let i=0;i<80;i++){
       
       <input id="dashboardGroup" placeholder="Enter Group Name to Search">
 
-      <select id="daySelect">
-        <option>Saturday</option><option>Sunday</option><option>Monday</option>
-        <option>Tuesday</option><option>Wednesday</option>
-        <option>Thursday</option><option>Friday</option>
-      </select>
-
+      <div>
+        <button type="button" class="toggle-btn" style="margin-top: 0;" onclick="toggleDayDropdown()">Select Days to Search ▼</button>
+        <div class="day-dropdown-content" id="dayDropdown">
+          <label><input type="checkbox" name="searchDay" value="All Days" onchange="selectAllDays(this.checked)"> **Select All Days**</label>
+          <hr style="border-color:#00ffc833; margin: 5px 0;">
+          <label><input type="checkbox" name="searchDay" value="Saturday"> Saturday</label>
+          <label><input type="checkbox" name="searchDay" value="Sunday"> Sunday</label>
+          <label><input type="checkbox" name="searchDay" value="Monday"> Monday</label>
+          <label><input type="checkbox" name="searchDay" value="Tuesday"> Tuesday</label>
+          <label><input type="checkbox" name="searchDay" value="Wednesday"> Wednesday</label>
+          <label><input type="checkbox" name="searchDay" value="Thursday"> Thursday</label>
+          <label><input type="checkbox" name="searchDay" value="Friday"> Friday</label>
+        </div>
+      </div>
+      
       <button onclick="loadChart()">
         🔍 Find Availability
         <span class="spinner" id="loader"></span>
@@ -273,7 +313,7 @@ for(let i=0;i<80;i++){
 </div>
 
 <footer>
-  <span>© Fall 25 GreedyMeet | Algorithm Lab Project | All rights reserved.</span> 
+  <span>© Fall 25 GreedyMeet | CSE266.9 Group Project | All rights reserved.</span> 
 </footer>
 
 <script>
@@ -297,7 +337,6 @@ function initGrid() {
     html += `<tr>`;
     html += `<td>${slot}</td>`; // Sticky column
     days.forEach(day => {
-      // Create checkbox with data attributes for easy retrieval
       html += `
         <td>
           <input type="checkbox" data-day="${day}" data-time="${slot}">
@@ -318,6 +357,34 @@ function toggleForm(){
   form.style.display = form.style.display === "none" ? "block" : "none";
 }
 
+// --- DAY SELECT DROPDOWN LOGIC (NEW) ---
+function toggleDayDropdown() {
+  const dropdown = document.getElementById('dayDropdown');
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+}
+
+function selectAllDays(checked) {
+  const checkboxes = document.querySelectorAll('#dayDropdown input[name="searchDay"]');
+  checkboxes.forEach(cb => {
+    if (cb.value !== "All Days") {
+      cb.checked = checked;
+    }
+  });
+}
+
+function getSelectedDays() {
+  const selectedCheckboxes = document.querySelectorAll('#dayDropdown input[name="searchDay"]:checked');
+  let selectedDays = [...selectedCheckboxes]
+    .map(cb => cb.value)
+    .filter(val => val !== "All Days");
+
+  // If nothing specific is selected, and 'All Days' wasn't checked, default to all days
+  if (selectedDays.length === 0) {
+    return days;
+  }
+  return selectedDays;
+}
+
 // --- FORM SUBMISSION (BATCHED) ---
 document.getElementById('scheduleForm').onsubmit = async (e) => {
   e.preventDefault();
@@ -330,86 +397,157 @@ document.getElementById('scheduleForm').onsubmit = async (e) => {
     return;
   }
 
-  // Collect data per day
-  const payloadMap = {}; // Key: Day, Value: Array of slots
-  let hasSelection = false;
-
+  const payloadMap = {}; 
   const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked');
   
   if(checkboxes.length === 0) {
-    alert("Please select at least one class time.");
-    return;
+    // Collect all UNCHECKED slots (Free Time) for all days as "OFF" status
+    // For simplicity, we will assume a lack of checkmark means no class (free) 
+    // and rely on the backend to handle the submission of *busy* times.
+    // **NOTE: The current backend logic expects busy slots. If a user submits nothing, it implies they are free all the time, which may be correct but requires them to acknowledge they are done.**
+    
+    const confirmation = confirm("You have not checked any class times. This means you are available all the time. Is this correct?");
+    if (!confirmation) {
+        return; 
+    }
   }
 
+  // Group busy slots by day
   checkboxes.forEach(cb => {
     const d = cb.getAttribute('data-day');
     const t = cb.getAttribute('data-time');
     if(!payloadMap[d]) payloadMap[d] = [];
     payloadMap[d].push(t);
   });
+  
+  // Ensure every day is included in the promise array, even if empty (to "clear" previous data for that day)
+  const daysToSubmit = new Set([...days, ...Object.keys(payloadMap)]);
 
   const submitBtn = e.target.querySelector('button[type="submit"]');
   const originalText = submitBtn.textContent;
   submitBtn.disabled = true;
   submitBtn.textContent = "Processing...";
 
-  // Create an array of Fetch Promises (one per active day)
-  const promises = Object.keys(payloadMap).map(day => {
+  const promises = Array.from(daysToSubmit).map(day => {
+    // If no slots were selected for a day, send an empty array [] to indicate "all free"
+    const slots = payloadMap[day] || [];
     return fetch(SCRIPT_URL, {
       method: "POST",
       body: JSON.stringify({
         studentID: studentID,
         group: group,
         day: day,
-        timeSlots: payloadMap[day]
+        timeSlots: slots // [] indicates all free/no classes
       })
     });
   });
 
   try {
     await Promise.all(promises);
-    alert(`Successfully Submitted Schedule for ${Object.keys(payloadMap).length} days! ✅`);
+    alert(`Successfully Submitted ✅`);
     toggleForm();
-    // Optional: Reset form
     document.getElementById('scheduleForm').reset();
+    initGrid(); // Re-initialize to clear grid state
   } catch (err) {
     console.error(err);
-    alert("Error submitting some data. Please try again.");
+    alert("Error submitting some data. Please check console.");
   } finally {
     submitBtn.textContent = originalText;
     submitBtn.disabled = false;
   }
 };
 
-// --- CHART LOADING LOGIC (UNCHANGED) ---
+// --- CHART LOADING LOGIC (MODIFIED) ---
 let chart;
 function loadChart(){
   const dashboardGroup = document.getElementById('dashboardGroup');
-  const daySelect = document.getElementById('daySelect');
   const loader = document.getElementById('loader');
+  const selectedDays = getSelectedDays();
 
   if(!dashboardGroup.value) {
     alert("Please enter a group name");
     return;
   }
+  if(selectedDays.length === 0) {
+    alert("Please select at least one day to search.");
+    return;
+  }
+  
+  // Collapse the day dropdown
+  document.getElementById('dayDropdown').style.display = 'none';
 
   loader.style.display = "inline-block";
 
+  // Fetch the data from the server
   fetch(`${SCRIPT_URL}?group=${dashboardGroup.value}`)
   .then(r => r.json())
   .then(data => {
     loader.style.display = "none";
     document.getElementById('totalStudents').textContent = data.totalStudents;
 
-    if(!data.freeTime || !data.freeTime[daySelect.value]) {
-       alert("No data found for this group/day.");
+    if(!data.freeTime || data.totalStudents === 0) {
+       document.getElementById('bestSlot').textContent = `Best Slot: No data found.`;
+       document.getElementById('bestDay').textContent = `Best Day Overall: No data found.`;
+       if(chart) chart.destroy();
        return;
     }
 
-    const dayData = data.freeTime[daySelect.value];
+    let globalMax = -1;
+    let globalBestDay = "";
+    let globalBestSlot = "";
+    let bestAvg = -1;
+    let bestDayByAvg = "";
+    let bestDayData = {};
+
+    // 1. Find the Overall Best Day/Slot across ALL selected days
+    for(const day of selectedDays){
+      const dayData = data.freeTime[day] || {};
+      let dayVals = Object.values(dayData);
+      
+      if(dayVals.length > 0) {
+        // Find Best Slot of this day
+        let max = Math.max(...dayVals);
+        let slot = Object.keys(dayData)[dayVals.indexOf(max)];
+
+        // Update Global Max
+        if(max > globalMax) {
+          globalMax = max;
+          globalBestDay = day;
+          globalBestSlot = slot;
+        }
+
+        // Calculate average for this day (for Best Day By Average)
+        let avg = dayVals.reduce((a,b)=>a+b,0) / dayVals.length;
+        if(avg > bestAvg){ 
+          bestAvg = avg; 
+          bestDayByAvg = day;
+          bestDayData = dayData;
+        }
+      }
+    }
+    
+    // Fallback: If no slots were found in any selected day
+    if(globalMax === -1) {
+       document.getElementById('bestSlot').textContent = `Best Slot: No availability found on selected days.`;
+       document.getElementById('bestDay').textContent = `Best Day Overall: No availability.`;
+       if(chart) chart.destroy();
+       return;
+    }
+
+
+    // 2. Prepare data for the chart (Use the Day with the Highest Average Availability)
+    const displayDay = bestDayByAvg;
+    const dayData = bestDayData; // The data for the day with the highest average availability
     const labels = Object.keys(dayData);
     const values = Object.values(dayData);
 
+
+    // 3. Update Highlights
+    document.getElementById('bestSlot').textContent = `Best Slot: ${globalBestSlot} on ${globalBestDay} (${globalMax}% free)`;
+    document.getElementById('bestDay').textContent = `Chart for Best Day (${displayDay}): ~${bestAvg.toFixed(1)}% free`;
+
+
+    // 4. Update Chart
     const ctx = document.getElementById('freeTimeChart').getContext("2d");
     const gradient = ctx.createLinearGradient(0,0,0,400);
     gradient.addColorStop(0, "#00ffe0");
@@ -422,7 +560,7 @@ function loadChart(){
       data: {
         labels: labels,
         datasets: [{
-          label: "% Students Free",
+          label: `% Students Free on ${displayDay}`,
           data: values,
           backgroundColor: gradient,
           borderColor: "#00ffc8",
@@ -452,20 +590,6 @@ function loadChart(){
       }
     });
 
-    // Insights
-    let max = Math.max(...values);
-    let slot = labels[values.indexOf(max)];
-    document.getElementById('bestSlot').textContent = `Best Slot: ${slot} (${max}% free)`;
-
-    let bestD = "", bestAvg = 0;
-    for(const d in data.freeTime){
-      let dayVals = Object.values(data.freeTime[d]);
-      if(dayVals.length > 0) {
-        let avg = dayVals.reduce((a,b)=>a+b,0) / dayVals.length;
-        if(avg > bestAvg){ bestAvg = avg; bestD = d; }
-      }
-    }
-    document.getElementById('bestDay').textContent = `Best Day Overall: ${bestD} (~${bestAvg.toFixed(1)}% free)`;
   })
   .catch(err => {
     loader.style.display = "none";
