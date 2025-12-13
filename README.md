@@ -1,2 +1,2 @@
 # GreedyMeet
-Common Slot Finder for Groups
+Meeting Slot Finder for Groups
