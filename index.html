@@ -13,7 +13,7 @@ body {
   font-family: 'Courier New', monospace;
   background: #03040a;
   color: #00ffe0;
-  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 /* Binary background animation */
@@ -38,8 +38,8 @@ body {
   border-radius: 14px;
   padding: 20px;
   margin: 20px auto;
-  max-width: 1100px;
-  width: 90%; /* Responsive width */
+  max-width: 1200px; /* Wider for the grid */
+  width: 95%; 
   box-shadow: 0 0 16px #00ffc825;
 }
 
@@ -51,7 +51,7 @@ input, select, button {
   border: 1px solid #00ffc8;
   background: #081616;
   color: #00ffe0;
-  box-sizing: border-box; /* Ensures padding doesn't break width */
+  box-sizing: border-box;
   width: 100%;
   font-family: inherit;
 }
@@ -79,82 +79,86 @@ button:hover { background: #003737; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* --- FLEX LAYOUT (Responsive) --- */
+/* --- SCHEDULE GRID STYLES (NEW) --- */
+.grid-container {
+  overflow-x: auto; /* Scroll horizontally on mobile */
+  margin: 15px 0;
+  border: 1px solid #00ffc8;
+  border-radius: 8px;
+  max-height: 500px; /* Vertical scroll if too tall */
+  overflow-y: auto;
+  background: #020a0a;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* Forces scroll on small screens */
+}
+
+th, td {
+  padding: 8px 5px;
+  text-align: center;
+  border-bottom: 1px solid #00ffc833;
+  border-right: 1px solid #00ffc833;
+  font-size: 13px;
+}
+
+/* Sticky Header (Days) */
+thead th {
+  position: sticky;
+  top: 0;
+  background: #002828;
+  color: #00ffe0;
+  z-index: 10;
+  border-bottom: 2px solid #00ffc8;
+}
+
+/* Sticky First Column (Time Slots) */
+tbody td:first-child, thead th:first-child {
+  position: sticky;
+  left: 0;
+  background: #081616;
+  font-weight: bold;
+  border-right: 2px solid #00ffc8;
+  z-index: 11; /* Higher than normal headers */
+  min-width: 110px;
+}
+
+/* Checkbox Cell Hover */
+tbody td:not(:first-child):hover {
+  background: rgba(0, 255, 200, 0.1);
+}
+
+/* Custom Checkbox */
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #00ffc8;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* --- FLEX LAYOUT --- */
 .flex {
   display: flex;
   gap: 24px;
 }
 
-/* Desktop: Side by Side */
-@media (min-width: 768px) {
-  .left, .right { flex: 1; }
-  /* Ensure chart container has height context */
-  .right { display: flex; align-items: center; } 
+@media (min-width: 900px) {
+  .left { flex: 1.2; } /* Give more space to grid */
+  .right { flex: 0.8; display: flex; align-items: center; } 
 }
 
-/* Mobile: Stacked Vertical */
-@media (max-width: 767px) {
+@media (max-width: 899px) {
   .flex { flex-direction: column; }
   .left, .right { width: 100%; }
-  
-  /* Add spacing between the Find section and the Chart */
   .right {
     margin-top: 20px; 
     border-top: 1px solid #00ffc833; 
     padding-top: 20px;
-    min-height: 300px; /* Ensure chart area isn't too small */
+    min-height: 300px;
   }
-}
-
-/* --- UPDATED DROPDOWN STYLING --- */
-.dropdown-content {
-  display: none;
-  background: #081818;
-  border: 1px solid #00ffc8;
-  padding: 8px;
-  max-height: 250px;
-  overflow-y: auto;
-  margin-top: -5px;
-  margin-bottom: 10px;
-  border-radius: 0 0 6px 6px;
-}
-
-/* Specific styling for the Checkbox Labels (New lines, Compact, Aligned) */
-.dropdown-content label {
-  display: flex;          /* Flexbox for alignment */
-  align-items: center;    /* Vertically center text with box */
-  padding: 6px 8px;       /* Compact padding */
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.dropdown-content label:hover {
-  background: rgba(0, 255, 200, 0.15);
-}
-
-/* Custom checkbox spacing */
-.dropdown-content input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  margin: 0 12px 0 0; /* Margin-right pushes text away slightly */
-  cursor: pointer;
-  accent-color: #00ffc8; /* Colors the checkmark */
-}
-
-/* OFF DAY ROW */
-.offday-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 8px 0;
-  background: #001f1f;
-  padding: 8px;
-  border-radius: 6px;
-}
-.offday-row input {
-  width: 20px;
-  margin: 0;
 }
 
 /* HIGHLIGHT BOXES */
@@ -172,7 +176,6 @@ button:hover { background: #003737; }
   border: 1px dashed #00ffc8;
 }
 
-/* FOOTER */
 footer {
   text-align: center;
   padding: 20px;
@@ -188,6 +191,7 @@ footer {
 <body>
 
 <script>
+// Background Animation
 for(let i=0;i<80;i++){
   const b=document.createElement("div");
   b.className="binary";
@@ -205,45 +209,36 @@ for(let i=0;i<80;i++){
 
     <div class="left">
 
-      <button class="toggle-btn" onclick="toggleForm()">➕ Submit Your Class Schedule</button>
+      <button class="toggle-btn" onclick="toggleForm()">➕ Submit Class Schedule</button>
 
       <form id="scheduleForm" style="display:none">
-        <input id="studentID" placeholder="Student ID" required>
-        <input id="group" placeholder="Group Name" required>
+        
+        <div style="display:flex; gap:10px;">
+          <input id="studentID" placeholder="Student ID" required>
+          <input id="group" placeholder="Group Name" required>
+        </div>
+        
+        <p style="font-size:12px; opacity:0.8; margin: 10px 0 5px;">👇 Check the boxes for times when you have <b>Class (Busy)</b>:</p>
 
-        <select id="day">
-          <option>Saturday</option><option>Sunday</option><option>Monday</option>
-          <option>Tuesday</option><option>Wednesday</option>
-          <option>Thursday</option><option>Friday</option>
-        </select>
-
-        <div class="offday-row">
-          <input type="checkbox" id="offDay">
-          <label for="offDay" style="cursor:pointer">Mark as OFF day (No Class)</label>
+        <div class="grid-container">
+          <table id="scheduleTable">
+            <thead>
+              <tr>
+                <th style="z-index:20">Time / Day</th> <th>Saturday</th>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              </tbody>
+          </table>
         </div>
 
-        <div id="slotBox">
-          <button type="button" onclick="toggleSlots()">Select Time Slots ▼</button>
-          <div class="dropdown-content" id="slotDropdown">
-            <label><input type="checkbox" value="08:00–10:00"> 08:00–10:00</label>
-            <label><input type="checkbox" value="08:30–09:50"> 08:30–09:50</label>
-            <label><input type="checkbox" value="08:30–10:00"> 08:30–10:00</label>
-            <label><input type="checkbox" value="09:00–10:00"> 09:00–10:00</label>
-            <label><input type="checkbox" value="10:00–11:20"> 10:00–11:20</label>
-            <label><input type="checkbox" value="10:00–12:00"> 10:00–12:00</label>
-            <label><input type="checkbox" value="11:30–12:50"> 11:30–12:50</label>
-            <label><input type="checkbox" value="11:30–13:30"> 11:30–13:30</label>
-            <label><input type="checkbox" value="13:30–14:50"> 13:30–14:50</label>
-            <label><input type="checkbox" value="13:30–15:30"> 13:30–15:30</label>
-            <label><input type="checkbox" value="15:00–16:20"> 15:00–16:20</label>
-            <label><input type="checkbox" value="15:00–17:00"> 15:00–17:00</label>
-            <label><input type="checkbox" value="16:30–17:50"> 16:30–17:50</label>
-            <label><input type="checkbox" value="16:30–18:30"> 16:30–18:30</label>
-            <label><input type="checkbox" value="17:00–19:00"> 17:00–19:00</label>
-          </div>
-        </div>
-
-        <button type="submit" style="background:#005544; border-color:#00ffc8;">Submit Data</button>
+        <button type="submit" style="background:#005544; border-color:#00ffc8;">Submit Complete Schedule</button>
       </form>
 
       <hr style="border-color:#00ffc833; margin: 20px 0;">
@@ -284,65 +279,109 @@ for(let i=0;i<80;i++){
 <script>
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxlG57FNrAulG6SFlYp4m7BUG5BEaqgecY1lQR-0sRf8rfqjvK5L7meeDgiTgXh44duqQ/exec";
 
+// --- CONFIGURATION ---
+const timeSlots = [
+  "08:00–10:00", "08:30–09:50", "08:30–10:00", "09:00–10:00", 
+  "10:00–11:20", "10:00–12:00", "11:30–12:50", "11:30–13:30", 
+  "13:30–14:50", "13:30–15:30", "15:00–16:20", "15:00–17:00", 
+  "16:30–17:50", "16:30–18:30", "17:00–19:00"
+];
+const days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+// --- INITIALIZE GRID ---
+function initGrid() {
+  const tbody = document.getElementById('tableBody');
+  let html = "";
+  
+  timeSlots.forEach(slot => {
+    html += `<tr>`;
+    html += `<td>${slot}</td>`; // Sticky column
+    days.forEach(day => {
+      // Create checkbox with data attributes for easy retrieval
+      html += `
+        <td>
+          <input type="checkbox" data-day="${day}" data-time="${slot}">
+        </td>
+      `;
+    });
+    html += `</tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+// Run init
+initGrid();
+
 // Toggle Form Visibility
 function toggleForm(){
   const form = document.getElementById('scheduleForm');
   form.style.display = form.style.display === "none" ? "block" : "none";
 }
 
-// Toggle Slots Dropdown
-function toggleSlots(){
-  const dropdown = document.getElementById('slotDropdown');
-  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-}
-
-// Handle Off Day Checkbox
-const offDay = document.getElementById('offDay');
-const slotBox = document.getElementById('slotBox');
-offDay.onchange = () => {
-  slotBox.style.display = offDay.checked ? "none" : "block";
-};
-
-// Form Submission
-document.getElementById('scheduleForm').onsubmit = (e) => {
+// --- FORM SUBMISSION (BATCHED) ---
+document.getElementById('scheduleForm').onsubmit = async (e) => {
   e.preventDefault();
-  const slotDropdown = document.getElementById('slotDropdown');
-  const slots = offDay.checked
-    ? ["OFF"]
-    : [...slotDropdown.querySelectorAll("input:checked")].map(x => x.value);
 
-  // Simple validation
-  if(!offDay.checked && slots.length === 0) {
-    alert("Please select at least one time slot or mark as OFF day.");
+  const studentID = document.getElementById('studentID').value;
+  const group = document.getElementById('group').value;
+
+  if(!studentID || !group) {
+    alert("Please fill in Student ID and Group.");
     return;
   }
 
+  // Collect data per day
+  const payloadMap = {}; // Key: Day, Value: Array of slots
+  let hasSelection = false;
+
+  const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked');
+  
+  if(checkboxes.length === 0) {
+    alert("Please select at least one class time.");
+    return;
+  }
+
+  checkboxes.forEach(cb => {
+    const d = cb.getAttribute('data-day');
+    const t = cb.getAttribute('data-time');
+    if(!payloadMap[d]) payloadMap[d] = [];
+    payloadMap[d].push(t);
+  });
+
   const submitBtn = e.target.querySelector('button[type="submit"]');
   const originalText = submitBtn.textContent;
-  submitBtn.textContent = "Sending...";
   submitBtn.disabled = true;
+  submitBtn.textContent = "Processing...";
 
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      studentID: document.getElementById('studentID').value,
-      group: document.getElementById('group').value,
-      day: document.getElementById('day').value,
-      timeSlots: slots
-    })
-  }).then(() => {
-    alert("Submitted Successfully ✅");
-    submitBtn.textContent = originalText;
-    submitBtn.disabled = false;
-    toggleForm(); // Hide form after submit
-  }).catch(err => {
-    alert("Error submitting data.");
-    submitBtn.textContent = originalText;
-    submitBtn.disabled = false;
+  // Create an array of Fetch Promises (one per active day)
+  const promises = Object.keys(payloadMap).map(day => {
+    return fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        studentID: studentID,
+        group: group,
+        day: day,
+        timeSlots: payloadMap[day]
+      })
+    });
   });
+
+  try {
+    await Promise.all(promises);
+    alert(`Successfully Submitted Schedule for ${Object.keys(payloadMap).length} days! ✅`);
+    toggleForm();
+    // Optional: Reset form
+    document.getElementById('scheduleForm').reset();
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting some data. Please try again.");
+  } finally {
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+  }
 };
 
-// Chart Loading Logic
+// --- CHART LOADING LOGIC (UNCHANGED) ---
 let chart;
 function loadChart(){
   const dashboardGroup = document.getElementById('dashboardGroup');
@@ -362,7 +401,6 @@ function loadChart(){
     loader.style.display = "none";
     document.getElementById('totalStudents').textContent = data.totalStudents;
 
-    // Handle case where group doesn't exist
     if(!data.freeTime || !data.freeTime[daySelect.value]) {
        alert("No data found for this group/day.");
        return;
@@ -372,7 +410,6 @@ function loadChart(){
     const labels = Object.keys(dayData);
     const values = Object.values(dayData);
 
-    // Update Chart
     const ctx = document.getElementById('freeTimeChart').getContext("2d");
     const gradient = ctx.createLinearGradient(0,0,0,400);
     gradient.addColorStop(0, "#00ffe0");
@@ -396,7 +433,7 @@ function loadChart(){
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false, // Important for mobile sizing
+        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -415,7 +452,7 @@ function loadChart(){
       }
     });
 
-    // Calculate Insights
+    // Insights
     let max = Math.max(...values);
     let slot = labels[values.indexOf(max)];
     document.getElementById('bestSlot').textContent = `Best Slot: ${slot} (${max}% free)`;
