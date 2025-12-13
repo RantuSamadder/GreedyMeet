@@ -81,12 +81,15 @@ button:hover{background:#003737}
 .flex{
   display:flex;
   gap:16px;
+  align-items:flex-start;
 }
-@media(min-width:768px){
-  .left,.right{flex:1}
-}
+.left,.right{flex:1}
+
+/* MOBILE VIEW */
 @media(max-width:767px){
   .flex{flex-direction:column}
+  .right{order:2} /* chart below left column */
+  .left{order:1}
   button,input,select{width:100%}
 }
 
@@ -228,9 +231,7 @@ function toggleSlots(){
   slotDropdown.style.display =
     slotDropdown.style.display==="block"?"none":"block";
 }
-offDay.onchange=()=>{
-  slotBox.style.display = offDay.checked ? "none" : "block";
-};
+offDay.onchange=()=>{ slotBox.style.display = offDay.checked ? "none" : "block"; };
 
 scheduleForm.onsubmit=e=>{
   e.preventDefault();
