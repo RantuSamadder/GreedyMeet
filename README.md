@@ -1,7 +1,7 @@
 # 📊 GreedyMeet: Optimal Meeting Slot Finder for Groups
 
 **CSE266.9 Group Project | Fall 2025** *Optimizing collaborative scheduling through student availability analysis.*
-
+[![Live Site](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://rantusamadder.github.io/GreedyMeet/)
 ---
 
 ## 🏛 Project Overview
