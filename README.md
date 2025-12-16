@@ -1,13 +1,18 @@
 # 📊 GreedyMeet: Optimal Meeting Slot Finder for Groups
 
 **CSE266.9 Group Project | Fall 2025** *Optimizing collaborative scheduling through student availability analysis.*
-[![Live Site](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://rantusamadder.github.io/GreedyMeet/)
 ---
 
 ## 🏛 Project Overview
 **GreedyMeet** is a web-based scheduling optimization tool designed to solve the "meeting-point problem" common in academic environments. In modern university settings, coordinating group meetings amidst diverse individual course loads is a non-trivial task. 
 
 This project utilizes a **Greedy-inspired approach** to identify the most efficient time slots for group collaboration. By collecting "busy-state" data from participants via an interactive grid, the system calculates the percentage of availability across seven days, providing visual data analytics to assist group leaders in decision-making.
+
+---
+
+## 🌐 Live Deployment
+The application is hosted via **GitHub Pages** and can be accessed through the following production URL:
+> **Access Tool:** [https://rantusamadder.github.io/GreedyMeet/](https://rantusamadder.github.io/GreedyMeet/)
 
 ---
 
