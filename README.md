@@ -15,7 +15,7 @@ This project utilizes a **Greedy-inspired approach** to identify the most effici
 
 | Full Name | Student ID | Academic Role |
 | :--- | :--- | :--- |
-| **Rantu Samadde** | r2022200000149 | Lead Developer |
+| **Rantu Samadder** | 2022200000149 | Lead Developer |
 | **Swehinu Marma Boishakhi** | 2024000000140 | Data Analyst |
 
 ---
